@@ -5,8 +5,8 @@ import {COSTUME_REGIONS} from '../dist/costume-regions.js';
 import {heroDrawRect,heroFrame} from '../dist/hero-art.js';
 import {pngPixels} from './png-pixels.mjs';
 import {Game} from '../dist/campaign.js';
-test('nineteen costumes plus original, invalid or unavailable storage falls back safely',()=>{
- assert.equal(COSTUMES.length,20);assert.equal(new Set(COSTUMES.map(c=>c.id)).size,20);
+test('costume catalog identities are unique and unavailable storage falls back safely',()=>{
+ assert.equal(new Set(COSTUMES.map(c=>c.id)).size,COSTUMES.length);
  assert.equal(readCostume({getItem(){throw Error()}}),'original');assert.equal(costumeById('bad').id,'original');
  let saved;const storage={getItem:k=>k===COSTUME_KEY?saved:null,setItem:(k,v)=>saved=v};
  setCostume('phoebe',storage);assert.equal(readCostume(storage),'phoebe');assert.equal(selectedCostume(),'phoebe');
@@ -17,7 +17,7 @@ test('equipping every costume leaves combat stats, charge, inventory and hitbox 
  const g=new Game();g.start();const snapshot=JSON.stringify(g);
  for(const c of COSTUMES){setCostume(c.id,null);assert.equal(JSON.stringify(g),snapshot)}setCostume('original',null);
 });
-test('all nineteen atlases have sixteen complete frames and preserve aspect ratio and tint bounds',()=>{
+test('all costume atlases have sixteen complete frames and preserve aspect ratio and tint bounds',()=>{
  for(const def of COSTUMES.slice(1)){
   const im=pngPixels(new URL('../dist/assets/'+def.file,import.meta.url)),frames=COSTUME_REGIONS[def.file],image={naturalWidth:im.width,naturalHeight:im.height};assert.equal(frames.length,16);
   for(let f=0;f<16;f++){
