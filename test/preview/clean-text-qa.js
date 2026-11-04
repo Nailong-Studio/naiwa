@@ -1,0 +1,1 @@
+import {game,start,processEvents} from './game.js';document.querySelector('#qaClean').onclick=()=>{start();game.floor=3;game.generate();game.enter(game.rooms.find(r=>r.exists&&r.type==='fight').id,'left');processEvents();game.mode='paused';document.querySelector('#toast').classList.remove('show');document.querySelector('#qaClean').remove()};

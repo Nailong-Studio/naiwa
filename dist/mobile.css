@@ -1,0 +1,16 @@
+/* Game gestures must not become text selection or iOS long-press callouts. */
+.game-column,.game-column *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#game,#stick,.touch-actions button,.action-guide button{touch-action:none}
+.mobile-nav,.mobile-panel-close,.rotate-phone{display:none}
+.action-guide small{display:none}
+.purchase-modal{width:650px;max-width:100%;display:flex;flex-direction:column;gap:12px;text-align:left;overflow:hidden}
+.purchase-modal h2{font-size:20px;margin:0 0 4px}.purchase-heading p{margin:0;font-size:12px}
+.purchase-body{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-height:0}
+.purchase-list{display:flex;flex-direction:column;gap:8px;height:260px;max-height:100%;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:2px 6px 2px 2px}
+.purchase-item{flex-shrink:0;min-height:52px;padding:10px;text-align:left;border:2px solid #d5dec3;border-radius:7px;background:#edf2df;font-size:12px;touch-action:pan-y}
+.purchase-item[aria-pressed=true]{background:#dcebae;border-color:#5f7b42;box-shadow:inset 4px 0 #5f7b42}
+.purchase-detail{display:flex;flex-direction:column;min-width:0;overflow-y:auto;padding:8px;background:#eef0df;border:1px solid #d6ddc4;border-radius:7px}
+.purchase-name{font-size:15px}.purchase-description{line-height:1.7;font-size:12px!important;flex:1}.purchase-cost{font-size:12px;line-height:1.8;color:#6b512d}
+.purchase-detail .purchase-confirm{width:100%;min-height:48px;font-size:13px;margin-top:8px;padding:9px 5px;touch-action:manipulation}
+.purchase-confirm:disabled{opacity:.5;cursor:default}.purchase-modal .purchase-leave{min-height:44px;margin:0;align-self:stretch;touch-action:manipulation}
+#mobileBackdrop[hidden]{display:none}

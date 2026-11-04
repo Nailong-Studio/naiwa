@@ -1,0 +1,12 @@
+import {BufferedAudio} from './buffered-audio.js';
+import {ITEM_VOICE_OWNERS} from './item-audio.js';
+const clips=new Map(),errors=[];let maxConcurrent=0,sequence='尚未开始',run=0;
+window.addEventListener('error',e=>errors.push(e.message));window.addEventListener('unhandledrejection',e=>errors.push(String(e.reason)));
+const load=BufferedAudio.prototype.load,play=BufferedAudio.prototype.play;
+BufferedAudio.prototype.load=function(){clips.set(this.url,this);return load.call(this)};
+BufferedAudio.prototype.play=async function(){await play.call(this);this.qaStarts=(this.qaStarts||0)+1;this.qaGain=this.gain?.gain.value};
+const mod=await import('./game.js'),$=s=>document.querySelector(s),seen=new Map();
+function setup(){if(!$('#sound').textContent.includes('开'))$('#sound').click();mod.start();mod.processEvents();mod.game.items=Object.values(ITEM_VOICE_OWNERS).flat();mod.game.hurt=()=>{};mod.game.room.clear=false;mod.game.room.type='fight';mod.game.room.enemies=[]}
+$('#qaRun').onclick=()=>{setup();const generation=++run;const cues=[...Object.keys(ITEM_VOICE_OWNERS).map(key=>({type:'itemVoice',key})),{type:'bossVoice',kind:'bull',skill:'charge',owner:{}},{type:'bossVoice',kind:'bull',skill:'rage',owner:{}},{type:'bossVoice',kind:'meishu',skill:'traps',owner:{}}];let i=0;const next=()=>{if(generation!==run)return;const e=cues[i++];if(!e){sequence='11 条角色/道具原声检查完成';return}sequence=(i)+' / 11 '+(e.key||e.kind+' '+e.skill);mod.game.emit(e.type,e);mod.processEvents();setTimeout(next,6500)};next()};
+$('#qaMute').onclick=()=>$('#sound').click();$('#qaLaugh').onclick=()=>{mod.game.emit('laugh');mod.processEvents()};
+setInterval(()=>{let concurrent=0;const report=[];for(const [url,a] of clips){const file=new URL(url).pathname.split('/').at(-1);if(a.source&&!a.muted&&a.gain?.gain.value>0)concurrent++;if(a.qaStarts){const t=Math.max(seen.get(file)||0,a.currentTime);seen.set(file,t);const data=a.buffer?.getChannelData(0);let energy=0;if(data)for(let i=0;i<data.length;i+=100)energy+=data[i]*data[i];report.push({file,starts:a.qaStarts,maxSeconds:+t.toFixed(2),gain:a.qaGain,rms:data?+Math.sqrt(energy/Math.ceil(data.length/100)).toFixed(3):0})}}maxConcurrent=Math.max(maxConcurrent,concurrent);$('#qaResult').textContent=JSON.stringify({sequence,sound:$('#sound').textContent,decoded:[...clips.values()].filter(a=>a.buffer).length,active:concurrent,maxConcurrent,report,errors},null,1)},100);

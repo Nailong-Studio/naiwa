@@ -1,0 +1,1 @@
+import {game,start} from './game.js';document.querySelector('#qaFollowers').onclick=()=>{start();game.floor=2;game.generate();game.items.push('dog','mouse','egg','turtle','rabbit');game.p.x=480;game.p.y=300;document.querySelector('#qaFollowers').remove()};

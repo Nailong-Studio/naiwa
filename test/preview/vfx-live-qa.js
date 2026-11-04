@@ -1,0 +1,4 @@
+import {game,start,processEvents} from './game.js';let demo=false;
+document.querySelector('#qaBoost').onclick=()=>{start();demo=true;game.items=['man','deepthink','heavyvoice','returnvoice','fadeaway'];game.room.type='fight';game.room.clear=false;game.room.obstacles=[];game.room.hazards=[];game.p.x=180;game.p.y=300;game.p.inv=999;const e=game.spawn('turret',700,300);e.hp=e.maxHp=100000;e.cd=999;game.room.enemies=[e];game.emit('room');processEvents()};
+document.querySelector('#qaLoom').onclick=()=>{start();demo=false;game.floor=4;game.generate();game.enter(game.rooms.find(r=>r.exists&&r.type==='boss').id,'top');game.p.inv=999;game.p.x=480;game.p.y=380;const e=game.room.enemies[0];e.x=480;e.y=140;e.puppetCycle=3;game.enemyAttack(e);game.mode='paused';processEvents()};
+setInterval(()=>{if(demo&&game.mode==='play'){game.manReady=true;game.deepReady=true;game.fadeUntil=game.elapsed+2;game.shoot(1,0);processEvents()}},700);

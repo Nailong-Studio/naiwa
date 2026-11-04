@@ -1,0 +1,1 @@
+import {game,start,processEvents} from './game.js';document.querySelector('#qaPursuit').onclick=()=>{start();game.floor=4;game.generate();game.enter(game.rooms.find(r=>r.exists&&r.type==='fight').id,'right');game.p.inv=999;processEvents();document.querySelector('#qaPursuit').remove()};

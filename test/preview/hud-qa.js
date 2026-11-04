@@ -1,0 +1,1 @@
+import {game,start,processEvents} from './game.js';document.querySelector('#qaShop').onclick=()=>{start();game.coins=50;game.enter(game.rooms.find(r=>r.type==='shop'&&r.exists).id,'top');game.p.x=480;game.p.y=300;game.offer('商店');processEvents()};

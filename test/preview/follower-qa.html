@@ -1,0 +1,5 @@
+<!doctype html><meta charset="utf-8"><title>跟班动作帧检查</title><style>body{margin:0;background:#273c35;color:#f6e6ae;font:16px system-ui}h1{font-size:20px;margin:12px}canvas{display:block}</style><h1>奶鼠 · 奶狗 · 奶蛋 · 奶龟 · 奶兔 / 待机、移动、攻击、恢复</h1><canvas id="sheet" width="900" height="650"></canvas><script type="module">
+import {spriteImage,drawSprite} from './sprite-art.js';
+const image=spriteImage('followers-family-v2.png');await image.decode();const c=document.querySelector('canvas').getContext('2d');
+for(let row=0;row<5;row++)for(let col=0;col<4;col++){const x=130+col*205,y=100+row*125;c.fillStyle='#486450';c.fillRect(x-82,y-85,164,110);drawSprite(c,'followers-family-v2.png',col,row,4,5,x,y,100);c.fillStyle='#f6e6ae';c.fillText(['奶鼠','奶狗','奶蛋','奶龟','奶兔'][row]+' / '+['待机','移动','攻击','恢复'][col],x-60,y+40)}
+</script>

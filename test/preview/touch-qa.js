@@ -1,0 +1,9 @@
+const errors=[];window.addEventListener('error',e=>errors.push(e.message));window.addEventListener('unhandledrejection',e=>errors.push(String(e.reason)));
+const mod=await import('./game.js'),$=s=>document.querySelector(s),stick=$('#stick'),fire=$('#touchFire');let shots=0,movePoint,firePoint;
+const send=(target,type,id,p)=>target.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'touch',button:0,buttons:type==='pointerup'?0:1,clientX:p.x,clientY:p.y}));
+$('#qaHold').onclick=()=>{mod.start();mod.processEvents();const g=mod.game,emit=g.emit.bind(g);g.hurt=()=>{};shots=0;g.emit=(type,...args)=>{if(type==='shoot')shots++;return emit(type,...args)};const m=stick.getBoundingClientRect(),a=fire.getBoundingClientRect(),origin={x:m.left+m.width/2,y:m.top+m.height/2};movePoint={x:origin.x+35,y:origin.y};firePoint={x:a.right-8,y:a.top+a.height/2};send(stick,'pointerdown',11,origin);send(fire,'pointerdown',22,firePoint);send(window,'pointermove',11,movePoint)};
+$('#qaLost').onclick=()=>{send(stick,'lostpointercapture',11,movePoint);send(fire,'lostpointercapture',22,firePoint);movePoint={x:-100,y:movePoint.y};send(window,'pointermove',11,movePoint);send(window,'pointermove',22,firePoint)};
+$('#qaMove').onclick=()=>{send(window,'pointermove',11,movePoint);send(window,'pointermove',22,firePoint)};
+$('#qaReleaseMove').onclick=()=>send(window,'pointerup',11,movePoint);
+$('#qaReleaseFire').onclick=()=>send(window,'pointerup',22,firePoint);
+setInterval(()=>{$('#qaTouch').textContent=JSON.stringify({mode:mod.game.mode,moveHeld:stick.classList.contains('held'),fireHeld:fire.classList.contains('held'),direction:fire.dataset.direction,shots,position:[Math.round(mod.game.p.x),Math.round(mod.game.p.y)],viewport:[innerWidth,innerHeight],scroll:[scrollX,scrollY],errors})},100);

@@ -1,0 +1,18 @@
+# Local dependencies and editor/OS files
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Credentials and local deployment state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*-deploy-key/
+.server-known-hosts
+.openai/
+
+# Local-only preview server
+qa-server.mjs

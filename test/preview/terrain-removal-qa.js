@@ -1,0 +1,1 @@
+import {game,start,processEvents} from './game.js';document.querySelector('#qaTerrain').onclick=()=>{start();const r=game.rooms.find(r=>r.layoutId==='milk_aisles');game.enter(r.id,'top');r.enemies=[];r.clear=true;game.p.x=480;game.p.y=300;game.events=[];game.emit('room');processEvents();document.querySelector('#qaTerrain').remove()};

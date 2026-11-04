@@ -1,0 +1,6 @@
+const mod=await import('./game.js');
+const {Game}=await import('./campaign.js');
+function setup(g,ids){g.start();g.items=ids;g.room.type='fight';g.room.clear=false;g.room.obstacles=[];g.room.hazards=[];g.room.loot=[];g.p.x=300;g.p.y=300;g.p.inv=999;g.enemySpeed=()=>0;const e=g.spawn('turret',420,300);e.hp=1000;e.cd=999;g.room.enemies=[e];return g}
+const result=document.querySelector('#qaResult');
+document.querySelector('#qaDash').onclick=()=>{mod.start();const g=setup(mod.game,['fadeaway','shrimpfeet','elbow','mambaout','phoebewire']);g.update(.02,{dash:true,mx:1});for(let i=0;i<12;i++)g.update(.02,{});g.mode='paused';g.emit('room');mod.processEvents();result.textContent=JSON.stringify({label:'落地效果',bullets:g.bullets.length,footprints:g.footZones.length,wires:g.phoebeWires.length,speed:g.moveScale(g.p),interval:g.attackInterval(),damage:1000-g.room.enemies[0].hp})};
+document.querySelector('#qaSolo').onclick=()=>{const report=[];for(const id of ['fadeaway','elbow','shrimpfeet','mambaout','phoebewire']){const g=setup(new Game(()=>.42),[id]);if(id==='shrimpfeet')g.room.enemies[0].x=465;g.update(.02,{dash:true,mx:1});for(let i=0;i<99;i++)g.update(.02,{});report.push({id,damage:1000-g.room.enemies[0].hp})}result.textContent=JSON.stringify(report)};

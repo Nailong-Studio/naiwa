@@ -1,0 +1,29 @@
+html:has(.title-cover),body:has(.title-cover){overflow:hidden}
+.cover-mobile-hint{display:none}
+.overlay:has(.title-cover){position:fixed;inset:0;z-index:45;height:100dvh;padding:20px;background:#243c37;backdrop-filter:none;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.title-cover{position:relative;isolation:isolate;width:min(1160px,96vw,calc((100dvh - 40px)*1.77778));aspect-ratio:16/9;overflow:hidden;background:#f6e4bc;border:2px solid #d3bc80;box-shadow:0 10px 0 #152b27,0 0 0 5px #50684e;text-align:left;color:#244638}
+.cover-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;pointer-events:none}
+.cover-copy{position:absolute;left:5%;top:12%;width:35%;height:80%;display:flex;flex-direction:column;align-items:flex-start}
+.cover-kicker{font-size:clamp(10px,1.2vw,15px);font-weight:800;letter-spacing:3px;border-bottom:2px solid #6f8c62;padding-bottom:9px}
+.cover-copy h2{font-size:clamp(30px,5.5vw,72px);font-weight:950;line-height:1.06;letter-spacing:5px;margin:20px 0 14px;text-shadow:2px 3px #fff6d6;font-family:system-ui,sans-serif}.cover-copy h2 span{display:block}
+.cover-story{font-size:clamp(11px,1.2vw,15px);line-height:1.8;margin:0 0 18px;font-weight:650;text-shadow:0 1px #fff4d3}
+.cover-actions{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%}.cover-actions .primary{width:90%;max-width:260px;min-height:48px;margin:0;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;border:2px solid #294b35;border-radius:3px;background:#345a3c;color:#fff6d4;box-shadow:0 4px 0 #193b2c;font-size:16px;font-weight:800;touch-action:manipulation}.cover-actions .primary:hover{background:#446f48}.cover-actions .primary:active{transform:translateY(2px);box-shadow:0 2px 0 #193b2c}
+.cover-help{min-height:44px;padding:7px 12px;border:1px solid #8b9a70;border-radius:3px;background:#f9edceeb;color:#34543e;font-size:12px;touch-action:manipulation}
+.cover-hint{font-size:10px;margin:10px 0 0;color:#405944;font-weight:650}.cover-edition{position:absolute;right:20px;bottom:14px;color:#fff6d2;text-shadow:1px 2px #29493c;letter-spacing:3px;font-size:9px;font-weight:800}
+.title-cover button:focus-visible{outline:3px solid #f0a842;outline-offset:4px}
+@media (max-width:780px),(pointer:coarse),(max-width:1100px) and (max-height:600px){
+ .cover-desktop-hint{display:none}.cover-mobile-hint{display:inline}
+ .overlay:has(.title-cover){height:var(--game-vh,100dvh);width:var(--game-vw,100vw);padding:0}
+ .title-cover{width:100%;height:100%;aspect-ratio:auto;border:0;box-shadow:none;background:#f8e7bf}
+ /* Fade inside the artwork itself, so its edge stays seamless at any landscape ratio. */
+ .cover-art{left:auto;right:0;width:min(100%,calc(var(--game-vh,100dvh) * 1.77683));height:100%;object-fit:contain;object-position:right center;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 24%);mask-image:linear-gradient(90deg,transparent 0%,#000 24%)}
+ .cover-copy{left:max(5%,env(safe-area-inset-left));top:max(8%,env(safe-area-inset-top));height:84%;width:35%}
+ .cover-kicker{font-size:10px;letter-spacing:2px;padding-bottom:5px}
+ .cover-copy h2{font-size:clamp(30px,7.8vh,45px);letter-spacing:3px;margin:10px 0 9px}
+ .cover-story{font-size:11px;line-height:1.65;margin:0 0 12px}
+ .cover-actions{flex-direction:row;gap:8px;align-items:center;flex-wrap:wrap}.cover-actions .primary{width:auto;min-width:155px;min-height:46px;font-size:13px;padding:8px 12px;gap:14px}.cover-help{font-size:10px;padding:6px 10px}
+ .cover-hint{font-size:9px;margin-top:10px;max-width:220px;line-height:1.5}.cover-edition{font-size:7px;right:max(12px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));letter-spacing:1px}
+}
+@media (max-height:340px) and (orientation:landscape){
+ .cover-copy{top:6%;width:36%;height:91%}.cover-kicker{font-size:9px}.cover-copy h2{font-size:30px;margin:7px 0}.cover-story{font-size:10px;margin-bottom:8px}.cover-actions{gap:6px;flex-wrap:nowrap}.cover-actions .primary{min-width:136px;font-size:12px;padding:7px 9px;gap:6px}.cover-help{font-size:9px;padding:5px;white-space:nowrap}.cover-hint{font-size:8px;margin:8px 0 0}.cover-edition{display:none}
+}
