@@ -16,6 +16,7 @@ export const COSTUMES=Object.freeze([
  {id:'isaac',name:'以撒版奶蛙',detail:'以撒光头与黑眼 · 蓝色泪痕 · 红色 D6',file:'costume-isaac-v4.png',accent:'#efc4bc'},
  {id:'bluebaby',name:'小蓝人版奶蛙',detail:'蓝色皮肤 · 叉形眼睛 · 保留奶蛙圆肚',file:'costume-bluebaby-v1.png',accent:'#8cbde3'},
  {id:'keeper',name:'店主版奶蛙',detail:'灰色圆头 · 黑色眼洞与嘴洞 · 无翅膀',file:'costume-keeper-v1.png',accent:'#b4b6bf'},
+ {id:'apollyon',name:'亚波伦版奶蛙',detail:'灰色石像 · 双短角与小翅膀 · 奶蛙圆肚',file:'costume-apollyon-v1.png',accent:'#adb0b8'},
  {id:'anon',name:'千早爱音版奶蛙',detail:'粉色长发 · 羽丘校服',file:'costume-anon-v1.png',accent:'#efb4cf'},
  {id:'sakiko',name:'丰川祥子版奶蛙',detail:'蓝发编辫与黑缎带 · 羽丘校服',file:'costume-sakiko-v1.png',accent:'#aab9e7'},
  {id:'tempura',name:'天苏罗版奶蛙',detail:'浅棕短发 · 金黄虾套与虾尾鞋',file:'costume-tempura-v1.png',accent:'#e8c37c'},
