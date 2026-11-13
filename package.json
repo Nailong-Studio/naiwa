@@ -1,1 +1,1 @@
-{"name":"naiwa-binding","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test test/*.test.mjs"}}
+{"name":"naiwa-binding","private":true,"license":"GPL-3.0-only","type":"module","scripts":{"start":"node server.mjs","test":"node --test test/*.test.mjs"}}

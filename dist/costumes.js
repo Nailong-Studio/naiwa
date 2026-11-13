@@ -53,8 +53,8 @@ export function loadCostume(id){
  if(pending.has(def.id))return pending.get(def.id);
  const wait=new Promise((resolve,reject)=>{
   const done=()=>{cleanup();resolve(im)},fail=()=>{cleanup();sheets.delete(def.id);reject(new Error('Costume failed to load'))};
-  const cleanup=()=>{clearTimeout(timer);im.removeEventListener('load',done);im.removeEventListener('error',fail);pending.delete(def.id)};
-  const timer=setTimeout(fail,15000);im.addEventListener('load',done,{once:true});im.addEventListener('error',fail,{once:true});
+  const cleanup=()=>{im.removeEventListener('load',done);im.removeEventListener('error',fail);pending.delete(def.id)};
+  im.addEventListener('load',done,{once:true});im.addEventListener('error',fail,{once:true});
   if(im.complete&&!im.naturalWidth&&im.src)queueMicrotask(fail);
  });pending.set(def.id,wait);return wait;
 }
