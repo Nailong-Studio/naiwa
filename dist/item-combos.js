@@ -10,7 +10,7 @@ export const COMBO_ITEMS=[
  ['coinpouch','¤','奶鼠零钱袋','持有后每清完 3 个战斗房额外获得 2 金币；回访和安全房不计数。'],
  ['papercup','⌁','奶蛙传声纸杯','声波命中后向附近另一敌人传递 35% 伤害；每束及其分裂弹共享一次传声，不穿墙。'],
  ['milkcap','◒','奶蛙奶沫瓶盖','击杀敌人后留下 3 秒友方奶迹，最多保留 6 摊；可搭配奶迹滤芯。'],
- ['beatsticker','♫','奶豆节拍贴','每第 4 次普通攻击变为重拍弹，增伤 65%、弹体变大，命中推开普通怪；同一目标每 0.4 秒最多击退一次，Boss 不会被击退。'],
+ ['beatsticker','♫','奶豆节拍贴','每第 4 次普通攻击变为重拍弹，增伤 85%、弹体变大，命中推开普通怪；同一目标每 0.4 秒最多击退一次，Boss 不会被击退。'],
  ['mending','⌇','豆包缝补线','持有后累计造成 40 点有效伤害，恢复 1 点生命；每层最多恢复 2 次。']
 ].map(([id,icon,name,desc])=>({id,icon,name,desc,short:desc}));
 export function gearDamage(g){return (g.has('double')?.7:1)*(g.has('mints')?.95:1)}
@@ -23,7 +23,7 @@ export function prepareGearShot(g,start,pet){
   if(g.has('springteeth'))b.bounce++;
   if(g.has('megaphone'))b.r+=2;
   b.chain={left:g.has('papercup')?1:0};
-  if(beat){empowerShot(b,1.65);b.r+=4;b.beat=true}
+  if(beat){empowerShot(b,1.85);b.r+=4;b.beat=true}
  }
 }
 export function bouncedGear(g,b){if(!b.pet&&g.has('springteeth')&&!b.reboundBoost){b.damage*=1.2;b.reboundBoost=true}}

@@ -16,12 +16,6 @@ test('pause freezes duration and trails; transition clears effect; revisits cann
 test('boss telegraph and hazard clock cannot jump forward during dilation or restoration',()=>{
  const g=setup();g.floor=4;const e=g.makeBoss('puppet',480,180);e.puppetCycle=3;g.room.enemies=[e];g.enemyAttack(e);e.cd=999;g.hurt();advance(g,1);assert.ok(e.puppetSkill.t<.3);assert.equal(g.enemyBullets.length,0);advance(g,2.04);assert.ok(!sandyActive(g));assert.ok(e.puppetSkill.t<1);advance(g,.5);assert.ok(g.enemyBullets.length>0);
 });
-test('Gojo separates at takeoff, follows cardinal aim and emits one bounded supplemental shot after windup',()=>{
- const g=setup(['gojohalf','double','fanvoice','split','man']);g.update(.02,{dash:true,mx:1});const s=g.gojo;assert.ok(s);assert.equal(s.x,300);assert.ok(g.p.x>s.x);g.bullets=[];for(let i=0;i<8;i++)g.shoot(1,0);assert.equal(g.bullets.filter(b=>b.gojo).length,0);afterChronoStep(g,.1,{x:300,y:400});assert.equal(g.bullets.filter(b=>b.gojo).length,0);afterChronoStep(g,.03,{x:300,y:400});const shots=g.bullets.filter(b=>b.gojo);assert.equal(shots.length,1);assert.equal(shots[0].x,s.x+18);assert.equal(shots[0].y,s.y-14);assert.equal(shots[0].vy,0);assert.equal(shots[0].damage,.85);assert.equal(shots[0].split,undefined);assert.equal(shots[0].memeGroup,undefined);assert.ok(shots[0].pierce);assert.ok(g.gojoReadyAt>=8);advance(g,4.1);assert.equal(g.gojo,null);
-});
-test('Gojo shots are blocked by cover and room changes remove both halves',()=>{
- const g=setup(['gojohalf']);g.gojo={x:300,y:300,left:2.8,cd:0,face:1,flash:0,cast:null};g.room.obstacles=[{kind:'pillar',x:370,y:286,w:48,h:80,r:24}];const e=g.spawn('turret',440,286);e.hp=100;e.cd=999;g.room.enemies=[e];g.p.x=600;g.p.y=470;g.shoot(1,0);advance(g,.7);assert.equal(e.hp,100);assert.equal(g.bullets.filter(b=>b.gojo).length,0);g.generate();assert.equal(g.gojo,null);
-});
 test('zero elapsed time stays finite and clearing a room cannot recreate a split during an ongoing dash',()=>{
  const g=setup(['sandevistan','gojohalf']);g.hurt();assert.equal(chronoStep(g,0),1);assert.equal(g.sandy.left,3);g.p.dash=.2;g.room.clear=true;afterChronoStep(g,.02,{x:300,y:400});assert.ok(!g.gojo);
 });
@@ -30,10 +24,4 @@ test('player homing steering uses real time during Sandevistan',()=>{
 });
 test('Sandevistan speeds up player attack cadence instead of slowing the shot cooldown with the world',()=>{
  const normal=setup([]),fast=setup();fast.hurt();let a=0,b=0;const shootA=normal.shoot.bind(normal),shootB=fast.shoot.bind(fast);normal.shoot=(...args)=>{a++;shootA(...args)};fast.shoot=(...args)=>{b++;shootB(...args)};advance(normal,1,{fire:true,ax:1});advance(fast,1,{fire:true,ax:1});assert.equal(a,4);assert.equal(b,10);
-});
-test('Gojo feet kick once per target per dash, can hit again next dash, and do not knock back bosses',()=>{
- const g=setup(['gojohalf']);const e=g.spawn('brute',350,416);e.hp=100;e.vx=e.vy=0;g.room.enemies=[e];g.p.x=380;g.p.y=400;g.p.face=1;g.p.dash=.2;afterChronoStep(g,.02,{x:340,y:400});assert.equal(e.hp,98.5);assert.ok(Math.hypot(e.vx,e.vy)>0);afterChronoStep(g,.02,{x:380,y:400});assert.equal(e.hp,98.5);g.p.dash=0;afterChronoStep(g,.02,{x:380,y:400});e.type='boss';e.vx=e.vy=0;g.p.dash=.2;afterChronoStep(g,.02,{x:380,y:400});assert.equal(e.hp,97);assert.equal(e.vx,0);assert.equal(e.vy,0);
-});
-test('Gojo feet cannot kick through a solid wall and split expires automatically',()=>{
- const g=setup(['gojohalf']);const e=g.spawn('brute',380,416);e.hp=100;g.room.enemies=[e];g.room.obstacles=[{kind:'pillar',x:370,y:416,w:20,h:120,r:10}];g.p.x=370;g.p.y=400;g.p.face=1;g.p.dash=.2;afterChronoStep(g,.02,{x:340,y:400});assert.equal(e.hp,100);g.p.dash=0;afterChronoStep(g,4.1,{x:340,y:400});assert.equal(g.gojo,null);assert.equal(g.p.hp,6);
 });

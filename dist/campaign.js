@@ -1,9 +1,10 @@
+import {BOMB_DAMAGE} from './combat-values.js';
 import {bindFloorEconomy} from './floor-economy.js';
 import {installRoomWardrobe,canUseRoomWardrobe} from './room-wardrobe.js';
 import {castItemVfx,hitItemVfx,bounceItemVfx} from './item-vfx.js';
 import {PHOEBE_ITEMS,resetPhoebe,clearPhoebe,preparePhoebeShot,guardPhoebe,updatePhoebe} from './phoebe-items.js';
 import {DEEPSEEK_ITEMS,resetDeepseek,enterDeepseek,deepStats,prepareDeepseekShot,hitDeepseek,clearDeepseek,updateDeepseek} from './deepseek-items.js';
-import {CHRONO_ITEMS,sandyActive,chronoAttackInterval,resetChronoRoom,triggerSandy,chronoStep,afterChronoStep,queueGojo} from './chrono-items.js';
+import {CHRONO_ITEMS,sandyActive,chronoAttackInterval,resetChronoRoom,triggerSandy,chronoStep,afterChronoStep} from './chrono-items.js';
 import {MEME_ITEMS,prepareMemeShot,memeInterval,hitMeme,bounceMeme,hurtMeme,clearMeme,updateMeme,mambaActive,footZoneScale,ghostDamageScale} from './meme-items.js';
 import {updateFollowers,resetFollowers} from './follower-combat.js';
 import {startRescue,rescueLaugh,updateRescue} from './rescue.js';
@@ -30,11 +31,11 @@ const extra=[
  ['milkfilter','◉','奶迹滤芯','声波伤害常驻 +8%；站在奶迹上时改为 +40%，两者不叠加'],
  ['spillcup','▣','打翻的奶杯','主动爆笑完成后留下持续伤害敌人的友方奶迹'],
  ['milkfoam','◌','奶泡发声器','笑声命中敌人时有 20% 概率留下友方奶迹'],
- ['mouse','◖','奶鼠的奶酪','奶鼠在 260 范围内搜集金币、钥匙和炸弹；清房后带路到真实隐藏门，排除假墙，仍需炸弹开门'],
- ['dog','♧','奶狗项圈','奶狗主动扑击 320 范围内敌人，命中造成 2.5 + 基础攻击×0.75 伤害（上限 6），扑击冷却 0.85 秒'],
- ['egg','●','奶蛋摇篮','奶蛋蓄势后发射穿透声波，冷却 1.65 秒；伤害为 1.2 + 基础攻击×0.6（上限 4）'],
- ['turtle','◉','奶龟小壳','奶龟以原速绕身旋转，挡弹半径扩大至 32；碰到它的敌弹立即消除，没有挡弹间隔；接触地面敌人造成 1 + 基础攻击的 50% 伤害（上限 3），同一敌人每 0.5 秒最多受伤一次，不穿障碍'],
- ['rabbit','♧','奶兔闹钟','大爆笑触发奶兔跳跃波纹，追击 250 范围内敌人；伤害为 2 + 基础攻击×0.8（上限 5），不穿墙，不为大爆笑自充能'],
+ ['mouse','◖','奶鼠的奶酪','奶鼠近身啃咬地面敌人，基础伤害固定 1.5，不随攻击属性增长，冷却 3.2 秒，对落地 Boss 也有效。命中可偷补给，每房 1 次、每层最多 3 次：钥匙见底优先给 1 把，其次炸弹见底给 1 枚，否则给 2 金币（已有地面掉落也算库存）。保留 360 范围拾取和真实隐藏门引导，仍需炸弹开门。'],
+ ['dog','♧','奶狗项圈','奶狗主动扑击 360 范围内敌人，命中造成 3.2 + 基础攻击×0.9 伤害（上限 8），扑击冷却 0.75 秒'],
+ ['egg','●','奶蛋摇篮','奶蛋蓄势后发射穿透声波，冷却 1.25 秒；伤害为 2 + 基础攻击×0.9（上限 7）'],
+ ['turtle','◉','奶龟小壳','奶龟以原速绕身旋转，挡弹半径扩大至 32；碰到它的敌弹立即消除，没有挡弹间隔；接触地面敌人造成 1.4 + 基础攻击的 60% 伤害（上限 4），同一敌人每 0.5 秒最多受伤一次，不穿障碍'],
+ ['rabbit','♧','奶兔闹钟','大爆笑触发奶兔跳跃波纹，追击 280 范围内敌人；伤害为 4 + 基础攻击×1.5（上限 9），不穿墙，不为大爆笑自充能'],
  ['lunch','▣','豆包的便当','每清空 3 个战斗房，恢复 1 点生命'],
  ['scarf','♡','奶豆的小围兜','声波伤害常驻 +10%；生命不高于 2 点时改为 +70%，两者不叠加'],
  ['megaphone','▷','大笑扩音器','声波射程 +40%，体积增大'],
@@ -62,7 +63,7 @@ export class Game extends Base{
  this.p.inv=Math.max(this.p.inv,2);for(const enemy of this.room.enemies){enemy.cd=Math.max(enemy.cd||0,1.5);enemy.attack=Math.max(enemy.attack||0,1.5);enemy.chargeCD=Math.max(enemy.chargeCD||0,1.5)}
 
  if(this.room.type==='shop'){this.room.enemies=[];this.room.clear=true;this.emit('toast',{text:'商店：走近柜台，按 E 选购；金币不会自动扣除。'})}
- this.emit('room');}
+ this.emit('room',{room:this.room});}
  spawn(type,x,y){if(type==='slime'||type==='shield')type='brute';if(type==='fly')type='hopper';const e=super.spawn(type,x,y);e.artChapter=this.floor;e.hp=e.maxHp=type==='brute'?4+this.floor:type==='runner'?2+this.floor:3+this.floor;if(type==='runner')e.r=17;e.wind=0;e.attack=0;e.dx=1;e.dy=0;if(['fight','challenge','vault','cache'].includes(this.room.type)){const extraHp=({brute:2,forklift:3,stitchling:2,warden:2,loader:1})[type]||0;e.hp=e.maxHp=e.maxHp+extraHp;e.cd=this.rand(.65,1.2)}return e;}
  enemySpeed(e){if(e.repelled>0)return 0;const finaleSpeed=finalSpeed(this,e);if(finaleSpeed!==undefined)return finaleSpeed;const chapterSpeed=mobSpeed(this,e);if(chapterSpeed!==undefined)return chapterSpeed;if(STATIONARY.has(e.type))return 0;if(e.type==='tiny')return 175;if(e.type==='milkleak')return 140;if(e.type==='loader')return 100;if(e.type==='stitchling')return 170;if(e.type==='jailer')return 185;if(e.kind==='collector'&&e.longCharge)return 0;if(e.kind==='speaker')return e.sound?0:45;if(e.kind==='puppet'&&e.puppetSkill)return 0;if(e.kind==='catcher')return e.hands||e.handDisabled>0?0:25;if(e.type==='boss')return e.wind>0?0:e.enraged?85:e.hp<e.maxHp*.5?75:55;if(e.type==='runner')return 190+this.floor*4;if(e.type==='hopper')return e.wind>0?0:155+this.floor*4;if(e.type==='brute')return 120+this.floor*5;if(e.type==='shooter')return 65+this.floor*3;}
  enemyAttack(e){
@@ -104,12 +105,12 @@ export class Game extends Base{
  moveScale(actor){const scale=actor.type==='milkSkater'?1:movementScale(this,actor);return scale*(actor===this.p&&this.tempuraBuff>0?1.15:1)*(actor===this.p&&this.phoebeBoost>0?1.2:1)*(actor===this.p&&sandyActive(this)?1.35:1)*(actor===this.p&&mambaActive(this)?1.25:1)*footZoneScale(this,actor)*(actor!==this.p&&actor.rallied>0?1.3:1)*(actor!==this.p&&actor.type!=='boss'&&['fight','challenge','vault','cache'].includes(this.room.type)?1.1:1)}
  groundDrift(actor){return groundDrift(this,actor)}
  onEnemyKilled(e){e.deadAt=this.elapsed;killedGear(this,e);mobKilled(this,e);killedSpecial(this,e)}
- shoot(dx,dy,pet=false){const before=this.bullets.length;super.shoot(dx,dy,pet);for(const b of this.bullets.slice(before)){b.r+=3;if(!pet&&this.has('milkfilter')){const wet=onMilk(this,this.p);b.damage*=wet?1.4:1.08;b.milkBoost=wet;}b.life=(this.has('tongue')?2.7:1.35)*(this.has('megaphone')?1.4:1);if(!pet&&this.has('scarf'))b.damage*=this.p.hp<=2?1.7:1.1;b.split=this.has('split')&&!pet;b.homing=this.has('homing');}prepareGearShot(this,before,pet);if(!pet)shapeVoice(this,before);prepareMemeShot(this,before,pet);prepareDeepseekShot(this,before,pet);preparePhoebeShot(this,before,pet);castItemVfx(this,before,pet);if(!pet&&this.bullets.length>before)queueGojo(this,dx,dy);}
+ shoot(dx,dy,pet=false){const before=this.bullets.length;super.shoot(dx,dy,pet);for(const b of this.bullets.slice(before)){b.r+=3;if(!pet&&this.has('milkfilter')){const wet=onMilk(this,this.p);b.damage*=wet?1.4:1.08;b.milkBoost=wet;}b.life=(this.has('tongue')?2.7:1.35)*(this.has('megaphone')?1.4:1);if(!pet&&this.has('scarf'))b.damage*=this.p.hp<=2?1.7:1.1;b.split=this.has('split')&&!pet;b.homing=this.has('homing');}prepareGearShot(this,before,pet);if(!pet)shapeVoice(this,before);prepareMemeShot(this,before,pet);prepareDeepseekShot(this,before,pet);preparePhoebeShot(this,before,pet);castItemVfx(this,before,pet);}
  attackInterval(){return chronoAttackInterval(this,this.p.rate*voiceStats(this).interval*gearInterval(this)*memeInterval(this)*deepStats(this).interval)}
  onBulletBounce(b){bouncedGear(this,b);bounceMeme(this,b);bounceItemVfx(this,b);if(!b.pet&&this.has('milkfoam'))milkPool(this,b.x,b.y,true,42,2.5)}
  hurt(){if(sandyActive(this))return;const hp=this.p.hp;if(!saveWithButton(this))super.hurt();if(this.p.hp<hp&&this.p.hp>0){hurtMeme(this);triggerSandy(this)}}
  hurtGround(){if(this.p.inv>0||this.p.dash>0)return;if(this.has('milkboots')&&!(this.bootGuardCD>0)){this.bootGuardCD=8;this.p.inv=.65;this.emit('toast',{text:'豆包雨靴挡住了地面机关！8 秒后恢复。'});return}if(guardPhoebe(this))return;this.hurt()}
- activeCost(){return Math.max(25,(this.has('battery')?30:45)-(this.has('quietbadge')?5:0))}
+ activeCost(){return Math.max(25,(this.has('battery')?30:45)-(this.has('quietbadge')?10:0))}
  damageEnemy(e,n,credit=true){const before=Math.max(0,e.hp);super.damageEnemy(e,n*ghostDamageScale(this,e)*(e.kind==='catcher'&&e.handDisabled>0?1.5:1));const dealt=Math.max(0,before-Math.max(0,e.hp));if(credit)mendGear(this,dealt);if(credit&&!this.releasingLaugh&&dealt>0)this.activeCharge=Math.min(this.activeCost(),(this.activeCharge||0)+dealt)}
  bulletDamage(e,b){return b.damage*(!b.pet&&this.has('starbadge')&&e.starMark>0?1.2:1)}
  onBulletHit(e,b){hitItemVfx(this,e,b);if(b.rollingRock){if(b.hits.size>=3)b.life=0;if(e.type!=='boss'){const a=Math.atan2(b.vy,b.vx);e.vx=Math.cos(a)*180;e.vy=Math.sin(a)*180;e.repelled=.2}}hitVoice(this,e,b);hitGear(this,e,b);hitMeme(this,e,b);hitDeepseek(this,e,b);if(!b.pet&&this.has('milkfoam')&&this.random()<.2)milkPool(this,e.x,e.y,true,48,3);if(!b.split)return;b.split=false;for(const sign of [-1,1]){const a=Math.atan2(b.vy,b.vx)+sign*.7;this.bullets.push({...b,vx:Math.cos(a)*420,vy:Math.sin(a)*420,damage:b.damage*.35,r:5,life:.6,shotSpeed:420,age:0,returnAfter:.25,returned:b.returned,returning:false,hits:new Set(b.hits),split:false})}}
@@ -132,7 +133,7 @@ export class Game extends Base{
   }else if(r.type==='boss'&&this.floor<5)this.offer('关末奖励 · 带上它继续救奶豆');
   this.emit('room');
  }
- boom(x,y,radius=130,damage=20){this.effects.push({type:'bombBlast',x,y,radius,life:.6,max:.6});this.burst(x,y,'#f4dd99',30);for(const e of this.room.enemies||[])if(!e.dead&&Math.hypot(e.x-x,e.y-y)<radius+e.r)this.damageEnemy(e,damage);blastResourceDoors(this,x,y,radius);blastDevices(this,x,y,radius);blastTerrain(this,x,y,radius);this.effects=this.effects.filter(f=>f.type!=='milkPool'||Math.hypot(f.x-x,f.y-y)>radius+f.radius);if(Math.hypot(this.p.x-x,this.p.y-y)<radius-15)this.hurt();this.emit('room')}
+ boom(x,y,radius=130,damage=BOMB_DAMAGE){this.effects.push({type:'bombBlast',x,y,radius,life:.6,max:.6});this.burst(x,y,'#f4dd99',30);for(const e of this.room.enemies||[])if(!e.dead&&Math.hypot(e.x-x,e.y-y)<radius+e.r)this.damageEnemy(e,damage);blastResourceDoors(this,x,y,radius);blastDevices(this,x,y,radius);blastTerrain(this,x,y,radius);this.effects=this.effects.filter(f=>f.type!=='milkPool'||Math.hypot(f.x-x,f.y-y)>radius+f.radius);if(Math.hypot(this.p.x-x,this.p.y-y)<radius-15)this.hurt();this.emit('room')}
  onFinalBossDefeated(){startRescue(this)}
  rescueLaugh(){return rescueLaugh(this)}
  update(dt,input={}){if(this.mode==='rescue'){updateRescue(this,dt);return}if(this.mode!=='play')return;dt=Math.min(dt,.04);const playerDt=dt,origin={x:this.p.x,y:this.p.y};dt*=chronoStep(this,playerDt);const p=this.p,r=this.room;for(const e of r.enemies){e.artX=e.x;e.artY=e.y}

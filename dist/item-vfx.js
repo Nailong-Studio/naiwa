@@ -93,7 +93,8 @@ export function drawItemEffect(c,f){
 export function drawItemReadiness(c,g){
  if(!['play','paused'].includes(g.mode))return;
  c.save();const p=g.p;
- for(const e of g.room.enemies||[])if(!e.dead&&e.type==='boss'&&e.ghostMarkedUntil>(g.actionClock??g.elapsed)){const y=e.y-e.r-15;diamond(c,e.x,y,8,'#463451');diamond(c,e.x,y,5,'#d0a0ed');for(const side of [-1,1])block(c,e.x+side*12,y-4,3,9,'#b67ed5');}
+ for(const e of g.room.enemies||[])if(!e.dead&&e.ghostMarkedUntil>(g.actionClock??g.elapsed)){const y=e.y-e.r-15;diamond(c,e.x,y,8,'#463451');diamond(c,e.x,y,5,'#d0a0ed');for(const side of [-1,1])block(c,e.x+side*12,y-4,3,9,'#b67ed5');}
+ for(const e of g.room.enemies||[])if(!e.dead&&e.propertyMarkedUntil>(g.actionClock??g.elapsed)){const y=e.y-e.r-30;block(c,e.x-7,y,14,13,'#334936');block(c,e.x-4,y+3,8,2,'#f0d982');block(c,e.x-4,y+7,8,2,'#f0d982');}
  if(g.has('man')){for(let i=0;i<5;i++){block(c,p.x-14+i*6,p.y+23,4,4,ink);if(g.manReady||g.manBurst>0||i<(g.manHits||0))block(c,p.x-14+i*6,p.y+23,4,2,'#f3c75d')}if(g.manReady)diamond(c,p.x,p.y+16,4,'#f3c75d')}
  if(g.has('man')&&g.manBurst>0)for(let i=0;i<g.manBurst;i++)diamond(c,p.x-5+i*10,p.y+33,3,'#f3c75d');
  c.restore();

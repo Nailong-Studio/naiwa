@@ -1,0 +1,100 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluateMedia,rotateStyleText,sidewaysDirection,applyRotation,toVirtualPoint,toVirtualDelta,virtualRect,rotation,ROTATE_KEY,flipDirection} from '../dist/rotate-view.js';
+import {installFullscreenKeeper,keepGameFullscreen,toggleGameFullscreen,requestGameFullscreen,consumeFullscreenTurn} from '../dist/fullscreen.js';
+
+const coarse=q=>q.includes('pointer:coarse')||q.includes('pointer: coarse');
+test('media queries are answered for the turned size; size-free features ask the browser',()=>{
+ const phone={width:844,height:390,real:coarse};
+ assert.equal(evaluateMedia('(max-width:780px), (pointer:coarse), (max-width:1100px) and (max-height:600px)',phone),true);
+ assert.equal(evaluateMedia('(max-width: 780px)',phone),false);
+ assert.equal(evaluateMedia('(orientation:landscape) and (max-height:389px)',phone),false);
+ assert.equal(evaluateMedia('(max-width:780px) and (orientation:portrait),(pointer:coarse) and (orientation:portrait)',phone),false);
+ assert.equal(evaluateMedia('(pointer:coarse) and (orientation:landscape) and (min-height:560px)',{width:1024,height:768,real:coarse}),true);
+ assert.equal(evaluateMedia('(min-width:781px) and (pointer:fine)',phone),false);
+ assert.equal(evaluateMedia('not all and (max-height:300px)',phone),true);
+ assert.equal(evaluateMedia('print',phone),false);
+ assert.equal(evaluateMedia('(aspect-ratio: 16/9)',phone),null);
+ assert.equal(evaluateMedia('(width >= 600px)',phone),null);
+});
+test('declarations follow the turned axes: viewport units, safe-area sides and pan-y lists',()=>{
+ assert.equal(rotateStyleText('height: 100dvh; width: min(700px, 94vw);','cw'),'height: var(--game-vh); width: min(700px, calc(var(--game-vw) * 0.94));');
+ assert.equal(rotateStyleText('font-size: clamp(11px, 1.2vw, 15px); margin: -50vh 0;','cw'),'font-size: clamp(11px, calc(var(--game-vw) * 0.012), 15px); margin: calc(var(--game-vh) * -0.5) 0;');
+ assert.equal(rotateStyleText('height: var(--game-vh,100dvh);','cw'),'height: var(--game-vh,var(--game-vh));');
+ assert.equal(rotateStyleText('--sa-l: env(safe-area-inset-left,0px); --sa-r: env(safe-area-inset-right, 0px); --sa-t: env(safe-area-inset-top); --sa-b: env(safe-area-inset-bottom);','cw'),'--sa-l: env(safe-area-inset-top,0px); --sa-r: env(safe-area-inset-bottom, 0px); --sa-t: env(safe-area-inset-right); --sa-b: env(safe-area-inset-left);');
+ assert.equal(rotateStyleText('padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);','ccw'),'padding-left: env(safe-area-inset-bottom); padding-right: env(safe-area-inset-top);');
+ assert.equal(rotateStyleText('overflow: auto; touch-action: pan-y;','cw'),'overflow: auto; touch-action: pan-x pan-y;');
+ assert.equal(rotateStyleText('touch-action: pan-y !important;','cw'),'touch-action: pan-x pan-y !important;');
+ assert.equal(rotateStyleText('width: 12vwx; --k1vw: 3px;','cw'),'width: 12vwx; --k1vw: 3px;');
+});
+test('only portrait touch screens turn, in the saved direction',()=>{
+ const view=(pointer,saved,throws=false)=>({matchMedia:q=>({matches:q==='(pointer:coarse)'&&pointer==='coarse'}),get localStorage(){if(throws)throw Error('blocked');return {getItem:k=>k===ROTATE_KEY?saved:null}}});
+ assert.equal(sidewaysDirection(view('coarse',null),{width:390,height:844}),'cw');
+ assert.equal(sidewaysDirection(view('coarse','ccw'),{width:390,height:844}),'ccw');
+ assert.equal(sidewaysDirection(view('coarse','ccw',true),{width:390,height:844}),'cw');
+ assert.equal(sidewaysDirection(view('fine',null),{width:390,height:844}),null);
+ assert.equal(sidewaysDirection(view('coarse',null),{width:844,height:390}),null);
+ assert.equal(sidewaysDirection({},{width:390,height:844}),null);
+});
+test('direction flips for the current page even when writing the saved setting fails',()=>{
+ const view={matchMedia:()=>({matches:true}),localStorage:{getItem:()=>'cw',setItem(){throw Error('quota')}}};
+ const size={width:390,height:844};
+ flipDirection(view);assert.equal(sidewaysDirection(view,size),'ccw');
+ assert.equal(sidewaysDirection({...view},size),'cw');
+ flipDirection(view);assert.equal(sidewaysDirection(view,size),'cw');
+});
+test('only the next landscape change from a successful native lock can skip pause',async()=>{
+ const doc={documentElement:{requestFullscreen(){doc.fullscreenElement=this}}};
+ const frames=[],view={screen:{orientation:{lock:async()=>{}}},matchMedia:()=>({matches:true}),requestAnimationFrame:fn=>frames.push(fn)};
+ await requestGameFullscreen({doc,view});
+ assert.equal(consumeFullscreenTurn(false,doc),true);
+ assert.equal(consumeFullscreenTurn(false,doc),false);
+ doc.fullscreenElement=null;
+ await requestGameFullscreen({doc,view});
+ while(frames.length)frames.shift()();
+ assert.equal(consumeFullscreenTurn(false,doc),false,'turning later during fullscreen pauses');
+ doc.fullscreenElement=null;
+ view.screen.orientation.lock=async()=>{throw Error('lock denied')};
+ await requestGameFullscreen({doc,view});
+ assert.equal(consumeFullscreenTurn(false,doc),false,'a denied lock cannot hide a manual rotation');
+});
+test('turning rewrites stylesheet rules and maps touches; un-turning restores everything',()=>{
+ const media={media:{mediaText:'(max-width:780px)'},cssRules:[]},style={style:{cssText:'height: 100dvh; padding-left: env(safe-area-inset-left);'}},plain={style:{cssText:'color: red;'}};
+ media.cssRules.push(style);
+ const root={dataset:{},style:{props:{},setProperty(k,v){this.props[k]=v}}},doc={documentElement:root,styleSheets:[{cssRules:[media,plain]}]},view={matchMedia:q=>({matches:coarse(q)})};
+ assert.equal(applyRotation({doc,view,dir:'cw',width:390,height:844}),true);
+ assert.equal(rotation(),'cw');assert.equal(root.dataset.rotated,'cw');assert.equal(root.style.props['--real-w'],'390px');
+ assert.equal(media.media.mediaText,'not all');
+ assert.equal(style.style.cssText,'height: var(--game-vh); padding-left: env(safe-area-inset-top);');
+ assert.equal(plain.style.cssText,'color: red;');
+ // cw: the phone's top edge is the page's left; a finger moving down the screen moves right on the page.
+ assert.deepEqual(toVirtualPoint(390,0),{x:0,y:0});assert.deepEqual(toVirtualPoint(0,844),{x:844,y:390});
+ assert.deepEqual(toVirtualDelta(0,10),{x:10,y:-0});
+ assert.deepEqual(virtualRect({getBoundingClientRect:()=>({left:290,top:20,width:100,height:200})}),{left:20,top:0,width:200,height:100,right:220,bottom:100,x:20,y:0});
+ applyRotation({doc,view,dir:'ccw',width:390,height:844});
+ assert.equal(style.style.cssText,'height: var(--game-vh); padding-left: env(safe-area-inset-bottom);');
+ assert.deepEqual(toVirtualPoint(0,844),{x:0,y:0});assert.deepEqual(toVirtualDelta(10,0),{x:-0,y:10});
+ assert.equal(applyRotation({doc,view,dir:null,width:844,height:390}),true);
+ assert.equal(rotation(),null);assert.equal(root.dataset.rotated,undefined);
+ assert.equal(media.media.mediaText,'(max-width:780px)');
+ assert.equal(style.style.cssText,'height: 100dvh; padding-left: env(safe-area-inset-left);');
+ assert.deepEqual(toVirtualPoint(5,7),{x:5,y:7});
+ const rect={left:1,top:2,width:3,height:4};assert.equal(virtualRect({getBoundingClientRect:()=>rect}),rect);
+});
+test('fullscreen keeper re-asks on a tap during a phone run, respects the menu opt-out and a refusing browser',async()=>{
+ const doc=new EventTarget();let requests=0,refuse=false;
+ doc.defaultView={};doc.documentElement={requestFullscreen(){requests++;if(refuse)return Promise.reject(Error('no'));doc.fullscreenElement=doc.documentElement;return Promise.resolve()}};
+ doc.exitFullscreen=()=>{doc.fullscreenElement=null;return Promise.resolve()};
+ let mobile=true;installFullscreenKeeper({doc,view:{},isMobile:()=>mobile});
+ const tap=async(type='touchend')=>{doc.dispatchEvent(new Event(type));await new Promise(r=>setTimeout(r,0))};
+ await tap();assert.equal(requests,0,'off until a run starts');
+ keepGameFullscreen(true);await tap();assert.equal(requests,1);
+ await tap('click');assert.equal(requests,1,'already fullscreen');
+ doc.fullscreenElement=null;mobile=false;await tap();assert.equal(requests,1,'desktop is never forced');
+ mobile=true;await tap('click');assert.equal(requests,2);
+ assert.equal(await toggleGameFullscreen({doc,view:{}}),'exited');await tap();assert.equal(requests,2,'menu opt-out');
+ assert.equal(await toggleGameFullscreen({doc,view:{}}),'entered');assert.equal(requests,3);
+ doc.fullscreenElement=null;refuse=true;await tap();await tap();await tap();assert.equal(requests,5,'two refusals, then quiet');
+ keepGameFullscreen(true);await tap();assert.equal(requests,6,'a new run tries again');
+ keepGameFullscreen(false);
+});

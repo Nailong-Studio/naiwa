@@ -1,7 +1,8 @@
+import {artReady} from './asset-url.js';
 // Gameplay recordings use the gesture-unlocked Web Audio context. Unlike a
 // muted HTMLAudio preload, this does not rely on per-element autoplay grants.
 export class BufferedAudio extends EventTarget {
- constructor(url,{getContext,fetchAudio=url=>fetch(url)}={}){
+ constructor(url,{getContext,fetchAudio=url=>artReady().then(()=>fetch(url))}={}){
   super();this.url=url;this.getContext=getContext;this.fetchAudio=fetchAudio;
   this.paused=true;this.ended=false;this._muted=true;this._volume=1;this.offset=0;this.serial=0;
  }

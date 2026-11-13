@@ -10,7 +10,7 @@ test('all ten new items enter the ordinary pool and can be picked normally',()=>
 });
 test('mint and beat share a trigger across a volley, stack with voices, and do not count pets',()=>{
  const g=fresh(['mints','beatsticker','fanvoice','double']);assert.ok(Math.abs(g.attackInterval()-.28*1.15*.85)<1e-9);
- for(let i=1;i<=4;i++){g.bullets=[];g.shoot(1,0);assert.equal(g.bullets.length,6);assert.ok(g.bullets.every(b=>Math.abs(b.damage-.7*.95*(b.vy===0?1.15:.35)*(i===4?1.65:1))<1e-9));g.shoot(1,0,true);assert.equal(g.beatShots,i);assert.ok(!g.bullets.at(-1).beat)}
+ for(let i=1;i<=4;i++){g.bullets=[];g.shoot(1,0);assert.equal(g.bullets.length,6);assert.ok(g.bullets.every(b=>Math.abs(b.damage-.7*.95*(b.vy===0?1.15:.35)*(i===4?1.85:1))<1e-9));g.shoot(1,0,true);assert.equal(g.beatShots,i);assert.ok(!g.bullets.at(-1).beat)}
 });
 test('spring teeth stack bounce count, boost only once and combine with milkfoam',()=>{
  const g=fresh(['springteeth','bubble','milkfoam']);g.shoot(1,0);const b=g.bullets[0];assert.equal(b.bounce,3);g.onBulletBounce(b);assert.equal(b.damage,1.2);g.onBulletBounce(b);assert.equal(b.damage,1.2);assert.equal(g.effects.filter(f=>f.friendly).length,2);

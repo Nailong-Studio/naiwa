@@ -13,8 +13,8 @@ test('property card works without machinery, cancels pending ranged attacks but 
  for(const e of [blocked,far,melee,boss])assert.equal(e.phoneMutedUntil,undefined);
  g.enemyAttack(open);assert.equal(g.enemyBullets.length,1);g.elapsed=1.51;g.enemyAttack(open);assert.equal(g.enemyBullets.length,2);
 });
-test('property card speeds the companion ranged interrupt to 3.5 seconds without weakening an existing longer mute',()=>{
- const g=fresh(['sun','propertycard']),e=enemy(g,'turret',400,300);updateMemeFollowers(g,0);const s=g.memePets.sun;s.cd=0;updateMemeFollowers(g,0);e.phoneMutedUntil=8;updateMemeFollowers(g,.4);assert.equal(s.cd,3.5);assert.equal(e.phoneMutedUntil,8);
+test('property card speeds the companion ranged interrupt to 2.6 seconds without weakening an existing longer mute',()=>{
+ const g=fresh(['sun','propertycard']),e=enemy(g,'turret',400,300);updateMemeFollowers(g,0);const s=g.memePets.sun;s.cd=0;updateMemeFollowers(g,0);e.phoneMutedUntil=8;updateMemeFollowers(g,.4);assert.equal(s.cd,2.6);assert.equal(e.phoneMutedUntil,8);
 });
 test('companion impacts stay cosmetic, include fed rice, and remain inside the common effect budget',()=>{
  const g=fresh(),e=enemy(g,'turret',500,300),variants=[['rice',{rice:true}],['fedRice',{rice:true,fed:true}],['basketball',{memePet:'kobe'}],['stone',{rollingRock:true}],['egg',{eggShot:true}]];

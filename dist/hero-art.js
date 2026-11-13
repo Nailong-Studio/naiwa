@@ -1,8 +1,9 @@
 import {atlasRegion} from './atlas-regions.js';
+import {loadArt} from './asset-url.js';
 import {selectedCostume,costumeById,costumeImage} from './costumes.js';
 import {COSTUME_REGIONS} from './costume-regions.js';
 const sheet=typeof Image==='undefined'?null:new Image();
-if(sheet)sheet.src=new URL('./assets/naiwa-pixel-v2.png',import.meta.url).href;
+if(sheet)loadArt(sheet,'naiwa-pixel-v2.png');
 const tinted=new Map();
 export function heroFrame(g){
  if(g.sandy?.left>0)return g.p.dash>0?13:(g.heroMoving?4+Math.floor((g.actionClock||0)*12)%4:8+Math.floor((g.actionClock||0)*12)%4);

@@ -1,3 +1,4 @@
+import {loadArt} from './asset-url.js';
 export const COSTUMES=Object.freeze([
  {id:'original',name:'经典奶蛙',detail:'原汁原味，挺着肚子去冒险。',file:'naiwa-pixel-v2.png',accent:'#e8c468'},
  {id:'kobe',name:'科比版奶蛙',detail:'24 号紫金球衣 · 篮球鞋',file:'costume-kobe-v1.png',accent:'#b399dc'},
@@ -21,20 +22,29 @@ export const COSTUMES=Object.freeze([
  {id:'sakiko',name:'丰川祥子版奶蛙',detail:'蓝发编辫与黑缎带 · 羽丘校服',file:'costume-sakiko-v1.png',accent:'#aab9e7'},
  {id:'tempura',name:'天苏罗版奶蛙',detail:'浅棕短发 · 金黄虾套与虾尾鞋',file:'costume-tempura-v1.png',accent:'#e8c37c'},
  {id:'pink',name:'奶粉',detail:'奶粉粉色 · 保留经典奶蛙轮廓',file:'costume-pink-v1.png',accent:'#eeb7ca'},
- {id:'bikini',name:'比基尼奶蛙',detail:'红白波点泳装 · 挺着肚子去海边',file:'costume-bikini-v1.png',accent:'#ef9e9a'}
+ {id:'bikini',name:'比基尼奶蛙',detail:'红白波点泳装 · 挺着肚子去海边',file:'costume-bikini-v1.png',accent:'#ef9e9a'},
+ {id:'lotusrain',name:'荷叶雨衣',detail:'荷叶雨衣 · 小红雨靴',file:'costume-lotusrain-v1.png',accent:'#8fc58a'},
+ {id:'milkman',name:'奶瓶街送奶员',detail:'白蓝条纹衫 · 奶滴小帽',file:'costume-milkman-v1.png',accent:'#9cc7e8'},
+ {id:'magician',name:'笑场魔术师',detail:'迷你礼帽 · 燕尾服',file:'costume-magician-v1.png',accent:'#d9707a'},
+ {id:'conductor',name:'运输站列车员',detail:'藏青制服 · 金边帽',file:'costume-conductor-v1.png',accent:'#7f95c9'},
+ {id:'safety',name:'工厂安全员',detail:'橙色安全帽 · 反光背心',file:'costume-safety-v1.png',accent:'#f0a24a'},
+ {id:'knight',name:'牢笼骑士',detail:'瓶盖头盔 · 纸板铠甲',file:'costume-knight-v1.png',accent:'#b9c2cf'},
+ {id:'astronaut',name:'宇航蛙',detail:'白色宇航服 · 鱼缸头盔',file:'costume-astronaut-v1.png',accent:'#f2b45a'},
+ {id:'newyear',name:'新春唐装',detail:'红色唐装 · 金色盘扣',file:'costume-newyear-v1.png',accent:'#e0544f'},
+ {id:'pajama',name:'星星睡衣',detail:'星月睡衣 · 长睡帽',file:'costume-pajama-v1.png',accent:'#a9b8ee'}
 ]);
 export const COSTUME_KEY='naiwa-costume-v1';
 export function costumeById(id){return COSTUMES.find(c=>c.id===id)||COSTUMES[0]}
-export function readCostume(storage){try{return costumeById(storage?.getItem(COSTUME_KEY)).id}catch{return 'original'}}
-let selected=readCostume(typeof localStorage==='undefined'?null:localStorage);
+export function readCostume(storage){try{if(storage===undefined)storage=globalThis.localStorage;return costumeById(storage?.getItem(COSTUME_KEY)).id}catch{return 'original'}}
+let selected=readCostume();
 export const selectedCostume=()=>selected;
-export function setCostume(id,storage=typeof localStorage==='undefined'?null:localStorage){
- selected=costumeById(id).id;try{storage?.setItem(COSTUME_KEY,selected)}catch{}return selected;
+export function setCostume(id,storage){
+ selected=costumeById(id).id;try{if(storage===undefined)storage=globalThis.localStorage;storage?.setItem(COSTUME_KEY,selected)}catch{}return selected;
 }
 const sheets=new Map(),pending=new Map();
 export function costumeImage(id){
  const def=costumeById(id);if(!sheets.has(def.id)&&typeof Image!=='undefined'){
-  const im=new Image();sheets.set(def.id,im);im.src=new URL('./assets/'+def.file,import.meta.url).href;
+  const im=new Image();sheets.set(def.id,im);loadArt(im,def.file);
  }return sheets.get(def.id)||null;
 }
 export function loadCostume(id){
@@ -45,7 +55,7 @@ export function loadCostume(id){
   const done=()=>{cleanup();resolve(im)},fail=()=>{cleanup();sheets.delete(def.id);reject(new Error('Costume failed to load'))};
   const cleanup=()=>{clearTimeout(timer);im.removeEventListener('load',done);im.removeEventListener('error',fail);pending.delete(def.id)};
   const timer=setTimeout(fail,15000);im.addEventListener('load',done,{once:true});im.addEventListener('error',fail,{once:true});
-  if(im.complete&&!im.naturalWidth)queueMicrotask(fail);
+  if(im.complete&&!im.naturalWidth&&im.src)queueMicrotask(fail);
  });pending.set(def.id,wait);return wait;
 }
 

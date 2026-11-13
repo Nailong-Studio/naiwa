@@ -1,105 +1,124 @@
-/* The arena fits the available window; panels scroll independently. */
+/* Desktop: the room leads; a slim HUD bar sits on it and a status row below it.
+   The sidebar reads top to bottom: map, live stats, pocket. Panels scroll independently. */
 #desktopFullscreen{display:none}
-@media (min-width:781px) and (pointer:fine) {
- @media (min-width:1101px), (min-height:601px) {
- html,body{width:100%;height:100%;overflow:hidden;background:#253330}
- .shell{width:100%;height:100dvh;max-width:none;padding:0 16px;color:#e6e9cd;display:grid;grid-template-rows:48px minmax(0,1fr)}
- header{height:48px;border-color:#607065;gap:12px}.brand{font-size:16px;color:#eee6bf;gap:9px}.brand-face{width:31px;height:30px;font-size:17px}.brand small{font-size:7px;margin:0}.header-right{gap:8px}.header-right button{padding:6px 12px;color:#e9e4c4;border-color:#758574;border-radius:3px}#desktopFullscreen{display:block}.edition{margin:0;color:#a9b49d}
- main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;padding:12px 0}
- .game-column{min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative}
- .game-heading,.footnote,footer,.note{display:none}
- #resources{position:absolute;top:0;left:0;margin:0;padding:6px 11px;background:#34483e;color:#e1dcae;border:0;font-size:12px}
- .game-frame{width:min(100%,calc((100dvh - 230px)*1.6));flex:none;border:0;outline:2px solid #829077;overflow:visible;background:#293e3b;box-shadow:0 6px 0 #162521}
- .hud{height:42px;padding:3px 12px;border-bottom:0}.hud-label{display:none}#hearts{font-size:22px;line-height:26px}.room-label strong{font-size:13px}.room-label span{font-size:10px}#pause{width:32px;height:32px}
- .canvas-wrap{width:100%;aspect-ratio:8/5}.canvas-wrap>canvas{width:100%;height:100%}.game-footer{height:25px;min-height:25px;padding:3px 10px;font-size:10px}
- .action-guide{margin:10px 0 0;gap:8px}.action-guide button{padding:5px 12px;background:#374c41;color:#eadcae;border-color:#6e806c;min-width:110px}.action-guide small{margin-left:8px;color:#b6c3a5}
- .key-guide{margin-top:8px;gap:14px;color:#bec9b2;font-size:10px}kbd{height:18px;padding:0 3px;background:#3e5246;border-color:#819477;color:#e2e4ca}
- aside{min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 4px 8px 0;gap:10px;scrollbar-width:thin;scrollbar-color:#7e9476 #253330}
- .panel{padding:12px;background:#e7e9d4;color:#304839}.map-panel{order:-2}.stats-panel{order:-1}.panel-title{margin-bottom:8px}.panel-title h2{font-size:12px}.map{margin:8px auto;max-width:180px}.map-cell{height:20px}.map-panel>p{display:none}.stats-panel .stat{padding:4px 0;font-size:10px}.stat strong{font-size:11px}.active-effects{margin-top:6px;padding-top:6px}.active-effects p{margin:4px 0;font-size:10px}.ability-row{margin:3px 0 5px}.inventory{max-height:180px}.empty-bag{font-size:22px}
- .toast{max-width:94%;white-space:normal;text-align:center;font-size:12px}.bossbar{top:12px}
- }
-}
-
-/* Readable in-game text, shared by desktop panels and the compact touch HUD. */
-.panel-title h2{font-size:15px;font-weight:800;color:#293e2e}
-.panel-title>span{font-size:12px;color:#4b5b40;font-weight:600}
-.stats-panel .stat{font-size:13px;color:#40543b}
-.stat strong{font-size:14px;font-weight:800;color:#243c2c}
-.active-effects p{font-size:12px;color:#365132;font-weight:600;line-height:1.6}
-.item-row strong{font-size:13px;color:#293f2e;font-weight:800}
-.item-row small{font-size:12px;color:#4b5b40;line-height:1.5}
-.modal p,.instructions{font-size:14px;color:#405239;line-height:1.65}
-.choice strong{font-size:15px;font-weight:800;color:#293e2e}
-.choice small{font-size:13px;line-height:1.5;color:#405239}
-.purchase-item{font-size:14px;font-weight:700}
-.purchase-name{font-size:16px;font-weight:800;color:#293e2e}
-.purchase-description{font-size:14px!important;color:#35482f!important;line-height:1.6}
-.purchase-cost{font-size:14px;font-weight:700;color:#65481e}
-.purchase-detail .purchase-confirm,.purchase-modal .purchase-leave,.mobile-panel-close{font-size:14px;font-weight:700}
-.purchase-modal .purchase-leave{color:#405239}
-.mobile-menu-heading span{font-size:12px;color:#4b5b40}
-.mobile-menu-grid button,#mobileMenuClose{font-size:14px;font-weight:700}
-.toast{font-size:14px;font-weight:700;line-height:1.5;color:#253e2c;background:#fff3ce}
-.bossbar{font-size:13px;font-weight:800;color:#fff6d8;text-shadow:0 1px 2px #152321,1px 0 #152321,-1px 0 #152321}
-.room-label strong{font-size:15px;font-weight:800;color:#fff0c8}
-.room-label span{font-size:12px;color:#d0d9c9;font-weight:600}
-.revive-info p{font-size:13px;color:#405239}
-.revive-info strong{font-weight:800}
-.death-revive-note{font-size:12px!important;color:#4b5b40}
 @media (min-width:781px) and (pointer:fine){
- @media (min-width:1101px), (min-height:601px){
-  #resources{position:static;align-self:center;margin:0 0 8px;font-size:14px;font-weight:800;color:#fff0cb}
-  .game-frame{width:min(100%,calc((100dvh - 270px)*1.6))}
-  .action-guide button{font-size:14px;font-weight:700;color:#fff0cb}
-  .action-guide small{font-size:12px;color:#e2e7d5;font-weight:600}
-  .key-guide,.game-footer{font-size:12px;color:#e0e5d5}
+ @media (min-width:1101px),(min-height:601px){
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--night)}
+  body{color:var(--hud-text)}
+  .shell{width:100%;height:100dvh;max-width:none;padding:0 20px;display:grid;grid-template-rows:50px minmax(0,1fr);color:var(--hud-text);background:radial-gradient(ellipse 70% 85% at 42% 48%,#2b3c37 0%,#1a2523 62%,#121918 100%)}
+  header{height:50px;gap:12px;border-bottom:2px solid #2c3c37}
+  .brand{gap:10px;color:var(--hud-text);font-size:17px}
+  .brand-face{width:34px;height:31px;font-size:16px;border-color:var(--frame-dark);box-shadow:0 2px 0 #0008}
+  .brand small{margin-top:2px;font-size:8px;color:var(--hud-muted)}
+  .header-right{gap:8px}.edition{margin:0 6px 0 0;color:var(--hud-muted);font-size:11px}
+  .header-right button{min-height:34px;padding:5px 14px;border:2px solid #4f6459;border-radius:6px;background:#22302c;color:var(--hud-text);font:700 13px/1 var(--font-ui);box-shadow:0 2px 0 #0a1110}
+  .header-right button:hover{border-color:var(--gold);filter:none}
+  #desktopFullscreen{display:block}
+  main{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;padding:14px 0}
+
+  /* Room column: frame, then one status row (dash, E, B, Q) and the key guide. */
+  .game-column{position:relative;min-width:0;min-height:0;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;column-gap:8px;row-gap:0}
+  .game-column::after{content:'';order:1;flex-basis:100%;height:0}
+  .game-heading,.footnote,footer,.note,#resources{display:none}
+  .game-frame{--hud-h:44px;--foot-h:28px;order:0;flex:none;width:min(100%,calc((100dvh - 50px - 28px - var(--hud-h) - var(--foot-h) - 84px) * 1.6));border:0;border-radius:6px;overflow:visible;background:var(--night-2);box-shadow:0 0 0 2px #d8c487,0 0 0 5px var(--frame-dark),0 14px 30px #00000088}
+  .hud{height:var(--hud-h);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:0 10px 0 12px;border:0;border-radius:6px 6px 0 0;background:linear-gradient(#24332f,#1b2724)!important;border-bottom:2px solid #0b1211}
+  .hud-label{display:none}
+  .hud>div:first-child{display:flex;align-items:center;gap:16px;min-width:0}
+  #hearts{display:flex;align-items:center;gap:1px;color:var(--hud-text);font:800 15px/1 var(--font-ui);white-space:nowrap;letter-spacing:0}
+  #hearts .heart{width:18px;height:16px}
+  .heart-count{margin-left:6px}
+  .mobile-resource-hud{display:flex;align-items:center;gap:14px;color:var(--hud-text);font:800 15px/1 var(--font-ui);font-variant-numeric:tabular-nums}
+  .hud-resource{display:flex;align-items:center;gap:5px}
+  .hud-resource svg{width:16px;height:16px;shape-rendering:crispEdges;fill:var(--gold);filter:drop-shadow(0 1px 0 #000)}
+  .hud-resource:nth-child(2) svg{fill:#a9d6e3}.hud-resource:nth-child(3) svg{fill:#f0a58e}
+  .room-label{gap:1px}
+  .room-label strong{color:var(--hud-text);font-size:15px;font-weight:900;letter-spacing:1px}
+  .room-label span{max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--hud-muted);font-size:12px;font-weight:600}
+  #pause{justify-self:end;width:34px;height:32px;border:2px solid #4f6459;border-radius:6px;background:#22302c;color:var(--hud-text);font-size:16px;box-shadow:0 2px 0 #0a1110}
+  .canvas-wrap{width:100%;aspect-ratio:8/5}.canvas-wrap>canvas{width:100%;height:100%}
+  .game-footer{height:var(--foot-h);min-height:var(--foot-h);padding:0 12px;border-radius:0 0 6px 6px;background:linear-gradient(#1b2724,#162120);border-top:2px solid #0b1211;color:var(--hud-muted);font-size:12px;font-weight:600}
+  .game-footer b{color:var(--hud-text);font-size:14px}
+  #tip{color:var(--hud-muted)}
+  .dash-status{padding:2px 8px;border-radius:4px;background:#2f4a3a;color:#d9f2c4;font-weight:800}
+
+  /* Status row: the touch dash button becomes the desktop dash chip. */
+  .mobile-controls,.touch-actions{display:contents}
+  #stick,#touchFire{display:none}
+  .action-guide{display:contents}
+  #touchDash,.action-guide button{order:2;position:relative;display:inline-flex;align-items:center;gap:8px;min-width:118px;min-height:38px;margin:12px 0 0;padding:5px 12px;border:2px solid #4f6459;border-radius:7px;background:linear-gradient(#2c3c37,#22302c);color:var(--hud-text);font:800 14px/1 var(--font-ui);box-shadow:0 3px 0 #0a1110;overflow:hidden;touch-action:none}
+  #touchDash::before{content:'空格';display:inline-grid;place-items:center;min-width:34px;height:22px;padding:0 4px;border:1px solid #819477;border-bottom-width:2px;border-radius:4px;background:#3e5246;color:var(--hud-text);font:700 11px/1 var(--font-ui)}
+  .key-label{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-right:6px;border:1px solid #819477;border-bottom-width:2px;border-radius:4px;background:#3e5246;font:800 12px/1 var(--font-ui)}
+  #touchDash small,.action-guide small{display:inline;margin-left:auto;padding-left:8px;color:var(--hud-muted);font-size:12px;font-weight:700}
+  #touchDash>span,.action-guide button>span{display:inline-flex;align-items:center}
+  #touchDash[data-ready=true] small{color:#bfe8a3}
+  #touchDash{background:linear-gradient(90deg,#3a5a3f var(--cooldown,100%),#22302c var(--cooldown,100%))}
+  #touchDash[data-ready=true]{border-color:#7fae6a}
+  #touchActive{background:linear-gradient(90deg,#7a5a24 var(--charge,0%),#22302c var(--charge,0%))}
+  .action-guide #touchActive[data-ready=true]{color:#2a1f08;border-color:#fff0b6;background:linear-gradient(#ffe48a,#f0b53d);box-shadow:0 3px 0 #6b4a16,0 0 14px #ffd66e88;animation:laugh-charged-desk 1.8s ease-in-out infinite}
+  .action-guide #touchActive[data-ready=true] small,.action-guide #touchActive[data-ready=true] .key-label{color:#2a1f08}
+  .action-guide #touchActive[data-ready=true] .key-label{background:#fff3c2;border-color:#9a6c1c}
+  .action-guide #touchActive[data-ready-flash=true]{animation:laugh-charge-arrival .8s ease-out both}
+  .action-guide #touchActive[data-playing=false]{animation:none}
+  #touchUse[data-ready=true]{border-color:#e9c46a;background:linear-gradient(#4a4a2e,#353626)}
+  #touchUse[data-ready=true] small{color:var(--gold-light)}
+  .action-guide button[aria-disabled=true],#touchDash[aria-disabled=true]{filter:saturate(.6)}
+  #touchDash:hover,.action-guide button:hover{border-color:var(--gold);filter:none}
+  .key-guide{order:3;flex-basis:100%;display:flex;justify-content:center;gap:16px;margin-top:8px;color:var(--hud-muted);font-size:12px;font-weight:600}
+  kbd{height:19px;padding:0 4px;border:1px solid #819477;border-bottom-width:2px;border-radius:4px;background:#3e5246;color:var(--hud-text);font:700 11px/16px var(--font-ui)}
+
+  /* Sidebar: map, compact stats, then the pocket filling the remaining height. */
+  aside{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:auto;overscroll-behavior:contain;padding:0 6px 10px 0;scrollbar-width:thin;scrollbar-color:#6f8a76 transparent}
+  .panel{flex:none;padding:12px 14px;box-shadow:4px 4px 0 #00000055}
+  .map-panel{order:-2}.stats-panel{order:-1}
+  .inventory-panel{flex:1 0 220px;display:flex;flex-direction:column;min-height:220px}
+  .panel-title{margin-bottom:6px}
+  .map{max-width:250px;gap:4px;margin:4px auto 8px}.map-cell{height:21px;font-size:12px}
+  .map-legend{font-size:11px;gap:3px 6px}.map-legend i.legend-cell{width:18px;height:14px;font-size:10px}
+  .map-panel>p{display:none}
+  .stats-grid{gap:2px 8px;margin-bottom:4px}
+  .stats-grid .stat{flex-direction:row;align-items:baseline;justify-content:space-between;gap:6px;padding:3px 7px}
+  .stats-grid .stat span{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stats-grid .stat strong{font-size:14px;white-space:nowrap}
+  .stats-panel .stat{padding:2px 0;font-size:12px}.stats-panel .stat strong{font-size:13px}
+  .stats-panel .ability-row{margin:1px 0 4px}
+  .ability-row progress,.stats-panel progress{height:6px}
+  .active-effects{margin-top:5px;padding-top:5px}.active-effects p{margin-top:1px;font-size:12px;line-height:1.5}
+  .inventory{flex:1;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain;align-content:start;padding-right:2px;
+   background:linear-gradient(var(--cream) 30%,#fdf6e100) center top,linear-gradient(#fdf6e100,var(--cream) 70%) center bottom,radial-gradient(farthest-side at 50% 0,#00000033,transparent) center top,radial-gradient(farthest-side at 50% 100%,#00000033,transparent) center bottom;
+   background-repeat:no-repeat;background-size:100% 28px,100% 28px,100% 10px,100% 10px;background-attachment:local,local,scroll,scroll}
+  .item-row{padding:5px 7px}.item-icon{width:36px;height:36px}.item-row .item-texture{width:32px;height:32px;flex-basis:32px}
+  .empty-bag{font-size:22px}
+
+  .toast{max-width:90%;white-space:normal;text-align:center;font-size:14px;padding:8px 16px}
+  .bossbar{position:absolute;left:50%;right:auto;top:10px;transform:translateX(-50%);width:min(56%,520px);padding:4px 10px 6px;border:2px solid #e9c46a;border-radius:6px;background:#1c1622e6;color:#fff3d1;font:800 14px/18px var(--font-ui);text-shadow:none}
+  .bossbar>div{height:9px;margin-top:3px}
+  .modal{max-height:calc(100% - 24px)}
  }
 }
-@media (max-width:780px),(pointer:coarse),(max-width:1100px) and (max-height:600px){
- .mobile-resource-hud{font-size:13px;font-weight:800;color:#fff0cb}
- .mobile-stats{font-size:12px;font-weight:600;background:#2b3934e6}
- .mobile-stats span{color:#d9e1cf}.mobile-stats b{font-size:13px;font-weight:800;color:#fff0cb}
- .room-label strong{font-size:13px;letter-spacing:.5px}.room-label span{font-size:11px}
- .mobile-nav button{font-size:12px;font-weight:700}
- .mobile-nav [data-mobile-panel=map]{font-size:11px;line-height:12px}
- #stick em{font-size:12px}
- .touch-actions button,.action-guide button,#touchUse,#touchActive,#touchDash{font-size:14px;font-weight:800}
- .touch-actions button small,.action-guide button small,#touchUse small{font-size:11px;font-weight:700;opacity:1}
- #touchFire .attack-thumb{font-size:11px}
- #touchUse{gap:6px}
- .bossbar{font-size:12px}.toast{font-size:13px}
- .purchase-name{font-size:15px}.purchase-description{font-size:13px!important}
- .purchase-cost{font-size:13px}.purchase-heading p{font-size:12px}
+/* Short desktop windows: put the pocket before the long stat list. */
+@media (min-width:1101px) and (max-height:820px) and (pointer:fine){
+ .inventory-panel{order:-1;flex:none;max-height:260px;min-height:150px}
+ .stats-panel{order:0}
 }
-@media (max-width:720px) and (orientation:landscape),(max-height:350px) and (orientation:landscape){
- .room-label strong{font-size:12px}.mobile-resource-hud{font-size:12px}
- .touch-actions button,.action-guide button,#touchUse,#touchActive,#touchDash{font-size:13px}
- .mobile-stats{font-size:11px}.mobile-stats b{font-size:12px}
- .purchase-name{font-size:14px}.purchase-description{font-size:13px!important;line-height:1.45}
- .purchase-cost{font-size:12px}.purchase-heading h2{font-size:16px}
+/* Very short desktop windows: the chips already show their keys; the room keeps the height. */
+@media (min-width:1101px) and (max-height:760px) and (pointer:fine),(min-width:781px) and (min-height:601px) and (max-height:760px) and (pointer:fine){
+ .key-guide{display:none}
+ .game-frame{width:min(100%,calc((100dvh - 50px - 28px - var(--hud-h) - var(--foot-h) - 56px) * 1.6))}
 }
-@media (max-height:280px) and (orientation:landscape){
- #touchFire .attack-thumb{font-size:10px}
-}
+@keyframes laugh-charged-desk{50%{box-shadow:0 3px 0 #6b4a16,0 0 22px #ffd66ecc}}
 
-/* Full-charge feedback: one short arrival cue, then a restrained ready state. */
-.action-guide #touchActive[data-ready=true]{background:#c1a15f;color:#27362a;border-color:#ffe49b;box-shadow:0 3px 0 #65512e,inset 0 0 0 2px #fff0b766;animation:laugh-charged 2.4s ease-in-out infinite}
-.action-guide #touchActive[data-ready=true] small{color:#27362a;font-weight:800}
-.action-guide #touchActive[data-ready-flash=true]{animation:laugh-charge-arrival .8s ease-out both}
-.action-guide #touchActive[data-playing=false]{animation:none}
-@keyframes laugh-charged{50%{border-color:#fff6d0;box-shadow:0 3px 0 #65512e,inset 0 0 0 2px #fff0b799,0 0 8px #ffd66e55}}
-@keyframes laugh-charge-arrival{0%{box-shadow:0 3px 0 #65512e,0 0 0 1px #ffe49b}45%{box-shadow:0 3px 0 #65512e,0 0 0 5px #ffe49b88,0 0 18px #ffd66e88}100%{box-shadow:0 3px 0 #65512e,0 0 0 8px #ffe49b00}}
-@media (prefers-reduced-motion:reduce){.action-guide #touchActive[data-ready=true],.action-guide #touchActive[data-ready-flash=true]{animation:none}}
-
-/* M opens the existing live map as a paused desktop dialog. */
-@media (min-width:781px) and (pointer:fine) {
- @media (min-width:1101px), (min-height:601px) {
-  aside[data-open-panel=map]{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);display:block;width:min(620px,90vw);max-height:90dvh;overflow:auto;margin:0;padding:18px;background:#e7e9d4;border:2px solid #8d967d;border-radius:6px;color:#304839}
+/* M opens the live map as a paused desktop dialog. */
+@media (min-width:781px) and (pointer:fine){
+ @media (min-width:1101px),(min-height:601px){
+  aside[data-open-panel=map]{position:fixed;z-index:41;left:50%;top:50%;transform:translate(-50%,-50%);display:block;width:min(640px,90vw);max-height:90dvh;overflow:auto;margin:0;padding:18px 20px;background:var(--cream);color:var(--ink);border:3px solid var(--frame-dark);border-radius:8px;box-shadow:0 0 0 2px #d8c487,8px 8px 0 #00000066}
   aside[data-open-panel=map]>section,aside[data-open-panel=map]>.note{display:none}
-  aside[data-open-panel=map]>.map-panel{display:block;border:0;margin:0}
-  aside[data-open-panel=map] .map{width:min(400px,100%);max-width:400px;gap:8px;margin:20px auto}
-  aside[data-open-panel=map] .map-cell{height:36px;font-size:20px}
-  aside[data-open-panel=map] .mobile-panel-close{display:block;margin-left:auto;min-height:40px;padding:6px 16px;background:#f4f0dd;color:#304839;border:1px solid #8d967d;border-radius:4px}
-  #mobileBackdrop:not([hidden]){position:fixed;inset:0;z-index:40;background:#172428d9;border:0}
+  aside[data-open-panel=map]>.map-panel{display:block;padding:0;border:0;margin:0;background:transparent;box-shadow:none}
+  aside[data-open-panel=map] .panel-title{padding-right:120px;min-height:40px}
+  aside[data-open-panel=map] .map{width:min(440px,100%);max-width:440px;gap:7px;margin:14px auto}
+  aside[data-open-panel=map] .map-cell{height:40px;font-size:20px}
+  aside[data-open-panel=map] .map-legend{max-width:440px;margin:0 auto;font-size:13px}
+  aside[data-open-panel=map] .map-panel>p{display:block}
+  aside[data-open-panel=map] .mobile-panel-close{position:absolute;top:16px;right:18px;display:block;min-height:40px;padding:6px 16px;border:2px solid var(--leaf-dark);border-radius:6px;background:var(--leaf);color:#fff6da;font:800 14px/1 var(--font-ui);box-shadow:0 3px 0 var(--leaf-dark)}
+  aside[data-open-panel=map] .mobile-panel-close::after{content:' · M';opacity:.8}
+  #mobileBackdrop:not([hidden]){position:fixed;inset:0;z-index:40;background:#0c1413d9;border:0}
  }
 }

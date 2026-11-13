@@ -27,12 +27,12 @@ test('boots are used before soot protection and pause freezes all new timers',()
  const g=setup(['phoebesoot','milkboots','phoebe']);g.p.inv=0;g.hurtGround();assert.equal(g.bootGuardCD,8);assert.ok(!g.room.phoebeSootUsed);g.p.inv=0;g.hurtGround();assert.equal(g.room.phoebeSootUsed,true);g.mode='paused';const t=g.phoebeBoost;advance(g,2);assert.equal(g.phoebeBoost,t);assert.equal(g.phoebe,null);
 });
 test('tempura drops finite physical supplies, buffs only after landing and pickup, and cannot farm revisits',()=>{
- const g=setup(['tempura']);updateMemeFollowers(g,0);let s=g.memePets.tempura;s.cd=0;updateMemeFollowers(g,0);updateMemeFollowers(g,.4);assert.equal(g.bullets.length,0);assert.equal(g.shrimpMeals.length,1);const meal=g.shrimpMeals[0];g.p.x=meal.x;g.p.y=meal.y;updateMemeFollowers(g,.2);assert.ok(!g.tempuraBuff);updateMemeFollowers(g,.16);assert.equal(g.tempuraBuff,10);assert.equal(memeDamage(g),1.35);assert.equal(g.shrimpMeals.length,0);
+ const g=setup(['tempura']);updateMemeFollowers(g,0);let s=g.memePets.tempura;s.cd=0;updateMemeFollowers(g,0);updateMemeFollowers(g,.4);assert.equal(g.bullets.length,0);assert.equal(g.shrimpMeals.length,1);const meal=g.shrimpMeals[0];g.p.x=meal.x;g.p.y=meal.y;updateMemeFollowers(g,.2);assert.ok(!g.tempuraBuff);updateMemeFollowers(g,.16);assert.equal(g.tempuraBuff,10);assert.equal(memeDamage(g),1.45);assert.equal(g.shrimpMeals.length,0);
  updateMemeFollowers(g,9);updateMemeFollowers(g,0);updateMemeFollowers(g,.4);assert.equal(g.room.tempuraServings,2);g.shrimpMeals=[];s.phase='idle';s.cd=0;updateMemeFollowers(g,0);assert.equal(s.phase,'idle');const id=g.roomId;g.enter(g.rooms.find(r=>r.exists&&r.type==='fight'&&r.id!==id).id,'top');g.enter(id,'top');assert.equal(g.room.tempuraServings,2);assert.equal(g.tempuraBuff,0);
 });
-test('phone interrupts ordinary ranged windup but leaves existing bullets and bosses untouched',()=>{
+test('phone interrupts ordinary ranged windup and damages bosses without cancelling their attacks',()=>{
  const g=setup(['sun','politesuit']),e=g.room.enemies[0];e.x=400;e.y=300;e.mobCast={kind:'cross',t:0,wind:.8};g.enemyBullets=[{x:100,y:100,vx:50,vy:0,r:5,life:2}];updateMemeFollowers(g,0);const s=g.memePets.sun;s.cd=0;updateMemeFollowers(g,0);updateMemeFollowers(g,.4);assert.equal(e.mobCast,null);assert.equal(e.phoneMutedUntil,3.2);assert.equal(g.bullets.length,0);assert.equal(g.enemyBullets.length,1);g.enemyAttack(e);assert.equal(g.enemyBullets.length,1);
- const boss=g.makeBoss('collector',400,300);g.room.enemies=[boss];s.cd=0;s.phase='idle';updateMemeFollowers(g,.4);assert.equal(s.phase,'idle');assert.equal(boss.phoneMutedUntil,undefined);
+ const boss=g.makeBoss('collector',400,300);g.room.enemies=[boss];s.cd=0;s.phase='idle';const hp=boss.hp;updateMemeFollowers(g,0);assert.equal(s.phase,'windup');updateMemeFollowers(g,.4);assert.ok(boss.hp<hp);assert.equal(boss.phoneMutedUntil,undefined);
 });
 test('rolling stones bounce but fall in pits, skip flyers and stop after three ground hits even in a cluster',()=>{
  const g=setup(['penguin']);updateMemeFollowers(g,0);const s=g.memePets.penguin;s.cd=0;updateMemeFollowers(g,0);updateMemeFollowers(g,.4);const b=g.bullets[0];assert.ok(b.rollingRock&&b.pierce&&b.bounce===1);const fly=g.spawn('hopper',b.x,b.y);assert.equal(g.canBulletHit(fly,b),false);
@@ -57,7 +57,7 @@ test('existing player wire updates from current attack and temporary buffs witho
  updatePhoebe(g,0,0,g.p);const wire=g.phoebeWires[0];assert.equal(wire.source,'player');assert.equal(e.hp,98);
  g.p.damage=10;g.elapsed=.4;updatePhoebe(g,0,0,g.p);assert.ok(Math.abs(e.hp-90.6)<1e-9);assert.ok(Math.abs(wire.damage-7.4)<1e-9);
  g.items.push('phoebe','man','deepthink');g.tempuraBuff=10;g.manReady=true;g.deepReady=true;
- g.elapsed=.8;updatePhoebe(g,0,0,g.p);assert.ok(Math.abs(wire.damage-(1.4+10*1.35*.6)*1.2)<1e-9);
+ g.elapsed=.8;updatePhoebe(g,0,0,g.p);assert.ok(Math.abs(wire.damage-(1.4+10*1.45*.6)*1.2)<1e-9);
  assert.equal(g.manReady,true);assert.equal(g.deepReady,true);assert.equal(g.bullets.length,0);
  g.tempuraBuff=0;g.elapsed=1.2;updatePhoebe(g,0,0,g.p);assert.ok(Math.abs(wire.damage-7.4*1.2)<1e-9);
 });

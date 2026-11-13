@@ -8,7 +8,7 @@ const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
 function shot(ids=[]){const g=new Game(()=>.42);g.start();g.items=ids;g.room.obstacles=[];g.room.hazards=[];g.shoot(1,0);return g;}
 test('badge and stones never reduce attack; standalone rim supplies its own bounded bounce',()=>{
  for(const id of ['quietbadge','stonepouch']){const g=shot([id]);close(g.bullets[0].damage,1);close(g.attackInterval(),.28)}
- const g=shot(['ironrim']),b=g.bullets[0];assert.equal(b.bounce,1);bounceMeme(g,b);close(b.damage,1.25);bounceMeme(g,b);close(b.damage,1.25);
+ const g=shot(['ironrim']),b=g.bullets[0];assert.equal(b.bounce,1);bounceMeme(g,b);close(b.damage,1.35);bounceMeme(g,b);close(b.damage,1.35);
  assert.equal(shot(['quietbadge','battery']).activeCost(),25);
 });
 test('fan preserves central long-range DPS with a capped close-range bonus and no companion boost',()=>{
@@ -24,8 +24,8 @@ test('heavy, wood and their combinations preserve shot distance and echo turnaro
  bs.forEach((b,i)=>{close(Math.hypot(b.vx,b.vy)*b.life,Math.hypot(base[i].vx,base[i].vy)*base[i].life);if(prefix.includes('returnvoice'))close(b.shotSpeed*b.returnAfter,base[i].shotSpeed*base[i].returnAfter)});
  }}
 });
-test('gugu retains the original center hit and has only 50 percent total bonus',()=>{
- const g=shot(['gugucharm']);g.memeVolley=3;g.bullets=[];g.shoot(1,0);close(g.bullets.find(b=>b.vy===0).damage,1);close(g.bullets.reduce((n,b)=>n+b.damage,0),1.8);
+test('gugu retains the original center hit and has bounded 120 percent bonus every fourth volley',()=>{
+ const g=shot(['gugucharm']);g.memeVolley=3;g.bullets=[];g.shoot(1,0);close(g.bullets.find(b=>b.vy===0).damage,1);close(g.bullets.reduce((n,b)=>n+b.damage,0),2.2);
 });
 test('conditional items have a modest baseline, with replacement rather than multiplying their buff',()=>{
  const g=shot(['scarf','milkfilter']);close(g.bullets[0].damage,1.1*1.08);g.p.hp=2;g.effects.push({type:'milkPool',x:g.p.x,y:g.p.y,radius:50,friendly:true,life:3});g.bullets=[];g.shoot(1,0);close(g.bullets[0].damage,1.7*1.4);

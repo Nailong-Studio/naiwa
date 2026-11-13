@@ -13,13 +13,15 @@ export function drawPickup(c,type,x,y){
  c.restore();
 }
 function sparks(c,x,y,progress,radius,color,count=8){for(let i=0;i<count;i++){const a=i*Math.PI*2/count,dist=5+progress*radius;block(c,x+Math.cos(a)*dist-2,y+Math.sin(a)*dist-2,4,4,color)}}
-export const FOREGROUND_EFFECTS=new Set(['echoPulse','ghostIdol','shrimpFeet','laugh','bombBlast','bossLaugh','voiceChain','petBlock','petCollect','petWave','petMuzzle','petImpact']);
+export const FOREGROUND_EFFECTS=new Set(['mouseSteal','gojoBlast','echoPulse','ghostIdol','shrimpFeet','laugh','bombBlast','bossLaugh','voiceChain','petBlock','petCollect','petWave','petMuzzle','petImpact']);
 export function drawPixelEffect(c,f){
  if(drawItemEffect(c,f))return true;
  if(!FOREGROUND_EFFECTS.has(f.type))return false;
  const progress=Math.max(0,Math.min(1,1-f.life/f.max)),radius=f.radius||190;
  c.save();c.globalAlpha*=Math.min(1,f.life/f.max*2);
- if(f.type==='ghostIdol'){
+ if(f.type==='mouseSteal'){
+  const y=f.y-20-progress*20;drawPickup(c,f.resource,f.x-9,y);c.fillStyle=cream;c.strokeStyle=ink;c.lineWidth=3;c.font='bold 16px system-ui';c.textAlign='left';c.strokeText('+'+f.amount,f.x+7,y+5);c.fillText('+'+f.amount,f.x+7,y+5);
+ }else if(f.type==='ghostIdol'){
   drawSprite(c,'ghostbuddha-v1.png',0,0,1,1,f.x,f.y,65,{alpha:.8});
  }else if(f.type==='shrimpFeet'){
   pixelRing(c,f.x,f.y,f.radius||65,'#dcad68',2);for(const d of [-1,1]){block(c,f.x+d*12-4,f.y-5,8,14,'#f7c66f');for(let i=0;i<3;i++)block(c,f.x+d*12-6+i*4,f.y-10,3,4,cream)}
@@ -34,6 +36,8 @@ export function drawPixelEffect(c,f){
   pixelRing(c,f.x,f.y,radius*progress,ink,5);pixelRing(c,f.x,f.y,radius*progress,color,3);
   if(progress>.2)pixelRing(c,f.x,f.y,radius*Math.max(0,progress-.18),color,3);
   sparks(c,f.x,f.y,progress,radius,color,12);
+ }else if(f.type==='gojoBlast'){
+  pixelRing(c,f.x,f.y,radius*Math.min(1,progress*2),'#45294e',8);pixelRing(c,f.x,f.y,radius*Math.min(1,progress*2),'#c78bff',5);pixelRing(c,f.x,f.y,radius*progress*.8,'#f3d9ff',3);sparks(c,f.x,f.y,progress,radius,'#d993ff',18);
  }else if(f.type==='bombBlast'){
   pixelRing(c,f.x,f.y,radius*progress,'#9c555b',8);pixelRing(c,f.x,f.y,radius*progress,'#ffcd78',4);
   sparks(c,f.x,f.y,progress,radius,'#fff0b4',16);

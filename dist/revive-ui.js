@@ -10,7 +10,8 @@ export function createRevivePlayer({getGame,overlay,getSound,onSound,onCancel,on
   overlay.querySelector('#reviveProgress').value=elapsed;
   overlay.querySelector('#reviveStatus').textContent=ready?'大笑能量充满了！':message||(paused?'观看已暂停，点击继续。':'奶龙正在大笑……');
   overlay.querySelector('#reviveCountdown').textContent=ready?`恢复 ${Math.ceil(g.p.maxHp/2)} / ${g.p.maxHp} 生命`:`还需观看 ${Math.ceil(REVIVE_SECONDS-elapsed)} 秒`;
-  overlay.querySelector('#reviveMute').textContent='声音 '+(getSound()?'开':'关');
+  const mute=overlay.querySelector('#reviveMute');mute.textContent='声音 '+(getSound()?'开':'关');if(mute.dataset)mute.dataset.on=String(getSound());
+  if(button.dataset)button.dataset.ready=String(ready);
  }
  function stop(){token++;if(media){media.pause();media.currentTime=0;media.onplaying=media.onwaiting=media.onerror=media.onseeking=null}media=null;g=null;clock.reset()}
  function pause(){if(!active()||g.reviveWatch.elapsed>=REVIVE_SECONDS)return;token++;media.pause();clock.reset();message='观看已暂停，点击继续。';controls()}

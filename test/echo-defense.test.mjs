@@ -4,12 +4,12 @@ import {Game} from '../dist/campaign.js';
 import {hitVoice} from '../dist/voice-builds.js';
 import {updateMemeFollowers} from '../dist/meme-followers.js';
 function setup(ids){const g=new Game(()=>.42);g.start();g.items=ids;g.room.type='fight';g.room.clear=false;g.room.obstacles=[];g.room.hazards=[];g.p.inv=999;return g}
-test('penguin intercepts incoming threats up to the five-shot budget, leaving outgoing and tangential shots alone',()=>{
+test('penguin intercepts incoming threats up to the six-shot budget, leaving outgoing and tangential shots alone',()=>{
  const g=setup(['sweetpenguin']),p=g.p;
  const shot=(x,y,vx,vy)=>({x:p.x+x,y:p.y+y,vx,vy,r:6});
  const far=shot(120,0,-200,0),soon=shot(70,0,-200,0),urgent=shot(45,0,-200,0),away=shot(60,0,200,0),tangent=shot(80,80,-200,0);
  g.enemyBullets=[far,away,tangent,soon,urgent];updateMemeFollowers(g,0);const s=g.memePets.sweetpenguin;s.cd=0;updateMemeFollowers(g,.01);assert.equal(s.phase,'windup');
- updateMemeFollowers(g,.17);assert.equal(g.enemyBullets.length,5);updateMemeFollowers(g,.02);assert.deepEqual(g.enemyBullets,[away,tangent]);assert.equal(s.cd,3);assert.equal(g.effects.filter(f=>f.type==='voiceChain').length,3);
+ updateMemeFollowers(g,.12);assert.equal(g.enemyBullets.length,5);updateMemeFollowers(g,.03);assert.deepEqual(g.enemyBullets,[away,tangent]);assert.equal(s.cd,2.5);assert.equal(g.effects.filter(f=>f.type==='voiceChain').length,3);
 });
 test('penguin does not spend its full cooldown when a predicted threat has already disappeared',()=>{
  const g=setup(['sweetpenguin']);g.enemyBullets=[{x:g.p.x+80,y:g.p.y,vx:-200,vy:0,r:6}];updateMemeFollowers(g,0);const s=g.memePets.sweetpenguin;s.cd=0;updateMemeFollowers(g,0);g.enemyBullets=[];updateMemeFollowers(g,.2);assert.equal(s.cd,.35);assert.equal(g.effects.length,0);

@@ -1,12 +1,14 @@
 import {atlasRegion} from './atlas-regions.js';
+import {loadArt} from './asset-url.js';
 export const MOB_SHEETS=[
  ['mobs-milk-v1.png',['brute','hopper','shooter','runner','milkleak','milkspitter','curdling','milkSkater']],
  ['mobs-stage-v1.png',['soundTurret','beatling','echoBell','conductor','loader','parcelThrower','forklift','turret']],
  ['mobs-factory-v1.png',['dollTurret','stitchling','tiny','stitchMedic','scrapMine','warden','jailer','lockSentry','prismEye']]
 ];
 const images=new Map();
+export const cachedSpriteImage=file=>images.get(file);
 const bounds=new Map();
-export function spriteRegion(image,cols,rows,row,col){return atlasRegion(image.src.split('/').at(-1),cols,rows,row,col,image.naturalWidth,image.naturalHeight)}
+export function spriteRegion(image,cols,rows,row,col){return atlasRegion(image.assetName||image.src.split('/').at(-1),cols,rows,row,col,image.naturalWidth,image.naturalHeight)}
 // Crop transparent gutters without stretching, with one stable scale for the animation row.
 function rowBounds(image,cols,rows,row){
  const key=image.src+':'+cols+':'+rows+':'+row;if(bounds.has(key))return bounds.get(key);
@@ -19,7 +21,7 @@ function rowBounds(image,cols,rows,row){
  }
  const result={frames,extent:Math.max(...frames.flatMap(b=>[b.w,b.h]))};bounds.set(key,result);return result;
 }
-export function spriteImage(file){if(typeof Image==='undefined')return null;if(!images.has(file)){const img=new Image();img.src=new URL('./assets/'+file,import.meta.url).href;images.set(file,img)}return images.get(file)}
+export function spriteImage(file){if(typeof Image==='undefined')return null;if(!images.has(file)){const img=loadArt(new Image(),file);images.set(file,img)}return images.get(file)}
 export function drawSprite(c,file,col,row,cols,rows,x,y,size,{flip=false,alpha=1,angle=0,squash=1}={}){
  const image=spriteImage(file);if(!image?.complete||!image.naturalWidth)return false;
  const region=spriteRegion(image,cols,rows,row,col),set=rowBounds(image,cols,rows,row),b=set.frames[col],scale=size/set.extent,dw=b.w*scale,dh=b.h*scale;

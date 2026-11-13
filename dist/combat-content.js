@@ -96,7 +96,7 @@ export function updateGround(g,dt){
 export function updateActive(g,dt,input){
  const ready=input.active&&!g.activeLatch&&g.activeCharge>=g.activeCost();g.activeLatch=!!input.active;
  if(!ready)return false;
- g.activeCharge=0;const p=g.p,radius=160;g.effects.push({type:'laugh',x:p.x,y:p.y,radius,life:.45,max:.45});
+ g.activeCharge=0;const p=g.p,radius=g.has('quietbadge')?190:160;g.effects.push({type:'laugh',x:p.x,y:p.y,radius,life:.45,max:.45});
  requestRabbit(g,g.room.enemies.filter(e=>!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<radius+e.r));
  g.releasingLaugh=true;
  try{for(const e of [...g.room.enemies])if(!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<radius+e.r){
@@ -106,7 +106,7 @@ export function updateActive(g,dt,input){
  for(const b of g.enemyBullets){const len=Math.hypot(b.x-p.x,b.y-p.y);if(len>radius+b.r)continue;const dx=len?(b.x-p.x)/len:1,dy=len?(b.y-p.y)/len:0;b.x=p.x+dx*Math.max(len,p.r+b.r+10);b.y=p.y+dy*Math.max(len,p.r+b.r+10);b.vx=dx*320;b.vy=dy*320;}
  if(g.has('propertycard')){
   for(const o of g.room.obstacles)if(['resonator','relay'].includes(o.kind)&&Math.hypot(o.x-p.x,o.y-p.y)<radius+30)o.disabled=4;
-  for(const e of g.room.enemies)if(Math.hypot(e.x-p.x,e.y-p.y)<radius+e.r&&shotLaneOpen(g.room,p,e)&&interruptRanged(g,e,1.5))g.effects.push({type:'voiceChain',x:p.x,y:p.y,tx:e.x,ty:e.y-12,life:.22,max:.22});
+  for(const e of g.room.enemies)if(!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<240+e.r&&shotLaneOpen(g.room,p,e)){e.propertyMarkedUntil=(g.actionClock??g.elapsed)+4;interruptRanged(g,e,1.5);g.effects.push({type:'voiceChain',x:p.x,y:p.y,tx:e.x,ty:e.y-12,life:.22,max:.22});}
  }
  if(g.has('spillcup'))milkPool(g,p.x,p.y,true,95,4);g.emit('laugh');return true;
 }

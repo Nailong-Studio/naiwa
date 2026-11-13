@@ -1,0 +1,79 @@
+/* Saved touch layout preference (naiwa-touch-layout).
+   Balanced (default, mobile-hud.css): narrow rails, the largest room.
+   Wide: a roomier right rail with dash beside the cross and bomb + Big Laugh in a row. */
+.mobile-layout-setting{margin-top:14px;border-top:2px solid var(--cream-3);padding-top:10px}
+.mobile-layout-setting>span{display:block;margin-bottom:7px;font-size:14px;font-weight:900;color:var(--ink)}
+.mobile-layout-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mobile-layout-options button{display:flex;align-items:center;gap:10px;min-height:50px;padding:6px 10px;border:2px solid #b9a978;border-radius:6px;background:var(--cream-2);color:var(--ink);font:800 13px/1.3 var(--font-ui);text-align:left;box-shadow:0 2px 0 #b9a978;touch-action:manipulation}
+.mobile-layout-options button[aria-pressed=true]{background:var(--leaf);color:#fff6da;border-color:var(--leaf-dark);box-shadow:0 2px 0 var(--leaf-dark)}
+.mobile-layout-options button[aria-pressed=true]::after{content:'✓';margin-left:auto;color:var(--gold);font-weight:900}
+.mobile-layout-setting small{display:block;margin-top:6px;color:var(--ink-3);font-size:12px;line-height:1.5}
+/* Thumbnail of each layout: room in the middle, controls at the sides. */
+.layout-diagram{position:relative;flex:none;width:46px;height:26px;border-radius:3px;background:#22302c;box-shadow:inset 0 0 0 1px #0b1211}
+.layout-diagram::before{content:'';position:absolute;top:4px;bottom:4px;left:12px;right:12px;border-radius:1px;background:#f2d9a8}
+.layout-diagram::after{content:'';position:absolute;left:3px;bottom:3px;width:6px;height:6px;border-radius:50%;background:#9dbb78;box-shadow:34px 0 0 -1px #9dbb78}
+[data-touch-layout-option=wide] .layout-diagram::before{left:10px;right:17px}
+[data-touch-layout-option=wide] .layout-diagram::after{box-shadow:34px 0 0 -1px #9dbb78,27px 0 0 -2px var(--gold),30px -8px 0 -2px #f0a58e,36px -8px 0 -2px var(--gold)}
+
+@media (orientation:landscape) and (max-width:780px),(orientation:landscape) and (pointer:coarse),(orientation:landscape) and (max-width:1100px) and (max-height:600px){
+ :root[data-touch-layout=wide] .game-column{--lift-room:calc(var(--vh) - var(--ctl-b) - var(--fire) - var(--stack-gap1) - var(--row-h) - var(--top-reserve));--dash-base:60px;--wide-extra:30px;--rail-r:calc(var(--fire-in) + var(--fire) + var(--dash) + var(--wide-extra) - var(--rail-gap));--wide-band:calc(var(--rail-r) + var(--rail-gap) - 8px);--row-h:50px}
+ :root[data-touch-layout=wide] #touchDash{right:calc(var(--edge-r) + var(--fire-in) + var(--fire) + 12px);bottom:calc(var(--fire-b) + (var(--fire) - var(--dash)) / 2)}
+ :root[data-touch-layout=wide] #touchActive,:root[data-touch-layout=wide] #touchBomb{bottom:calc(var(--fire-b) + var(--fire) + var(--stack-gap1));width:calc((var(--wide-band) - 8px) / 2);height:var(--row-h);min-height:44px;border-radius:10px}
+ :root[data-touch-layout=wide] #touchActive{right:calc(var(--edge-r) + 4px);flex-direction:row;gap:6px;font-size:13px}
+ :root[data-touch-layout=wide] #touchActive small{font-size:11px;letter-spacing:0}
+ :root[data-touch-layout=wide] #touchBomb{left:auto;right:calc(var(--edge-r) + 4px + (var(--wide-band) - 8px) / 2 + 8px);flex-direction:row;gap:6px;padding:3px 6px;font-size:13px}
+ :root[data-touch-layout=wide] #touchBomb::before{width:18px;height:18px}
+ /* Wide keeps interaction in place and dims it when nothing is nearby. */
+ :root[data-touch-layout=wide] #touchUse[data-ready=false]{visibility:visible;pointer-events:auto;color:var(--hud-muted);background:linear-gradient(#34443e,#26332f);border-color:#6f8a76;box-shadow:0 3px 0 #0a1110}
+ :root[data-touch-layout=wide] #touchUse[data-ready=false] small{color:var(--hud-muted)}
+ :root[data-touch-layout=wide] .mobile-stats{top:calc(var(--edge-t) + 98px)}
+}
+@media (orientation:landscape) and (max-width:720px){
+ :root[data-touch-layout=wide] .game-column{--wide-extra:14px}
+}
+@media (orientation:landscape) and (max-height:330px) and (max-width:1100px),(orientation:landscape) and (max-height:330px) and (pointer:coarse){
+ :root[data-touch-layout=wide] .game-column{--dash-base:54px;--row-h:44px;--stack-gap1:10px}
+}
+
+/* 画面 ↔ 按键: five saved steps (naiwa-touch-scale). Step 3 is the default. Lower
+   steps shrink the controls and edge gutters for a larger room; higher steps grow
+   them, move the cross and stick further in from the edges and lift them. Height
+   tiers in mobile-hud.css cap the larger steps on short screens. */
+:root[data-touch-scale="1"] .game-column{--k:.89;--edge-adj:-2px;--rail-gap:8px;--fire-in:12px}
+:root[data-touch-scale="2"] .game-column{--k:.945;--edge-adj:-1px;--rail-gap:9px;--fire-in:14px}
+:root[data-touch-scale="4"] .game-column{--k:1.075;--fire-in:22px;--stick-in:4px;--lift:8px}
+:root[data-touch-scale="5"] .game-column{--k:1.15;--fire-in:26px;--stick-in:8px;--lift:12px}
+.touch-scale{margin-top:12px}
+.touch-scale-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px}
+.touch-scale-head>span{font-size:14px;font-weight:900;color:var(--ink)}
+.touch-scale-head output{font:700 12px/1.4 var(--font-ui);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.touch-scale-track{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;height:48px;margin-top:2px}
+.touch-scale-track::before{content:'';position:absolute;left:10%;right:10%;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:linear-gradient(90deg,#9dbb78,#e9c46a);box-shadow:inset 0 0 0 1px #0b121140;pointer-events:none}
+.touch-scale-track button{position:relative;z-index:1;width:100%;height:48px;margin:0;padding:0;border:0;border-radius:6px;background:transparent;touch-action:manipulation;cursor:pointer}
+.touch-scale-track button::before{content:'';position:absolute;left:50%;top:50%;width:var(--dot,12px);height:var(--dot,12px);transform:translate(-50%,-50%);border-radius:50%;background:var(--cream);border:3px solid var(--ink-2);box-sizing:border-box}
+.touch-scale-track button:nth-child(1){--dot:12px}.touch-scale-track button:nth-child(2){--dot:14px}.touch-scale-track button:nth-child(3){--dot:16px}.touch-scale-track button:nth-child(4){--dot:18px}.touch-scale-track button:nth-child(5){--dot:20px}
+.touch-scale-track button[aria-checked=true]::before{width:calc(var(--dot) + 14px);height:calc(var(--dot) + 14px);background:var(--gold);border-color:var(--frame-dark);box-shadow:0 2px 0 #00000066}
+.touch-scale-track button:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.touch-scale-ends{display:grid;grid-template-columns:1fr auto 1fr;font-size:12px;font-weight:800;color:var(--ink-2)}
+.touch-scale-ends span:nth-child(2){color:var(--ink-3);font-weight:700}.touch-scale-ends span:last-child{text-align:right}
+/* Landscape menu: actions on the left, layout and 画面与按键 on the right, so both
+   settings are visible without scrolling. */
+@media (orientation:landscape) and (max-width:1100px),(orientation:landscape) and (pointer:coarse){
+ .mobile-menu-sheet{width:min(800px,96vw);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);column-gap:16px;align-items:start}
+ .mobile-menu-heading,#mobileMenuClose{grid-column:1 / -1}
+ .mobile-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mobile-layout-setting{margin-top:0;padding:0 0 0 16px;border-top:0;border-left:2px solid var(--cream-3)}
+ .mobile-layout-setting>span{margin-bottom:6px}
+ .mobile-layout-options button{min-height:46px;padding:5px 8px;font-size:12px;gap:8px}
+ .touch-scale{margin-top:10px}
+}
+@media (orientation:landscape) and (max-height:370px) and (max-width:1100px),(orientation:landscape) and (max-height:370px) and (pointer:coarse){
+ .mobile-layout-setting small{display:none}
+ .mobile-menu-grid{gap:6px}.mobile-menu-grid button{min-height:44px;padding:4px 8px;font-size:13px}
+}
+@media (orientation:landscape) and (max-height:300px) and (max-width:1100px),(orientation:landscape) and (max-height:300px) and (pointer:coarse){
+ .mobile-menu-heading span{display:none}
+ .mobile-layout-setting>span{display:none}
+ .touch-scale{margin-top:6px}.touch-scale-track{height:44px}.touch-scale-track button{height:44px}
+ .layout-diagram{display:none}.mobile-layout-options button{white-space:nowrap}
+}

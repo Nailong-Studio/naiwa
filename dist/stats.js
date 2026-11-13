@@ -9,7 +9,10 @@ import {playerAttackDamage} from './player-damage.js';
 export function createStatsPanel(panel,compact=null) {
   const compactFields=compact?[...compact.querySelectorAll('[data-compact-stat]')]:[];
   const fields = Object.fromEntries([...panel.querySelectorAll('[data-stat]')].map(el => [el.dataset.stat, el]));
-  const set = (key, value) => { if (fields[key].textContent !== value) fields[key].textContent = value; };
+  // Alternating the attribute restarts a short CSS highlight whenever a core stat changes.
+  const flashed = new Set(['health','damage','rate','speed','shots']);
+  const flash = el => { if (el.dataset) el.dataset.flash = el.dataset.flash === 'a' ? 'b' : 'a'; };
+  const set = (key, value) => { if (fields[key].textContent !== value) { fields[key].textContent = value; if (flashed.has(key)) flash(fields[key]); } };
   const remaining = seconds => `${Math.max(.1, Math.ceil(seconds * 10) / 10).toFixed(1)} 秒`;
   return game => {
     const p = game.p,voice=voiceStats(game);
@@ -30,7 +33,7 @@ export function createStatsPanel(panel,compact=null) {
     if(mambaActive(game))set('effects',fields.effects.textContent+' · 落地强化 '+remaining(game.outUntil-(game.actionClock??game.elapsed)));
     if(game.tempuraBuff>0)set('effects',fields.effects.textContent+' · 虾米强化 '+remaining(game.tempuraBuff));
     if(fields.button)set('button',!game.has('sparebutton')?'未获得':game.buttonFloor===game.floor?'本层已用':'本层可用');
-    for(const el of compactFields){const key=el.dataset.compactStat;let value=fields[key]?.textContent||'—';if(key==='rate')value=value.replace(' 次/秒','/s');if(key==='shield')value=p.shield?'就绪':game.has('lotus')?Math.ceil(Math.max(0,p.shieldCD))+'s':'无';if(el.textContent!==value)el.textContent=value;}
+    for(const el of compactFields){const key=el.dataset.compactStat;let value=fields[key]?.textContent||'—';if(key==='rate')value=value.replace(' 次/秒','/s');if(key==='shield')value=p.shield?'就绪':game.has('lotus')?Math.ceil(Math.max(0,p.shieldCD))+'s':'无';if(el.textContent!==value){el.textContent=value;if(key!=='shield')flash(el)}}
     fields.shield.dataset.ready = String(p.shield);
     fields.dash.dataset.ready = String(p.dashCD <= 0);
     fields.health.dataset.low = String(p.hp <= 2);
