@@ -17,19 +17,59 @@ test('Purple warns first, deals exactly double bomb damage once, and also hits i
  const g=game();g.p.damage=100;g.items.push('double','man','deepthink');g.manReady=g.deepReady=true;g.update(.02,{dash:true,mx:1});until(g,'fusion');const s=g.gojo,p=s.purple,e=g.room.enemies[0];e.x=p.x;e.y=p.y;e.hp=1000;g.p.x=p.x;g.p.y=p.y;g.p.inv=0;
  updateGojoFusion(g,.8,g.p);assert.equal(e.hp,1000);assert.equal(g.p.hp,6);updateGojoFusion(g,.06,g.p);assert.equal(GOJO.purpleDamage,BOMB_DAMAGE*2);assert.equal(e.hp,960);assert.equal(g.p.hp,5);assert.equal(g.activeCharge,0);assert.ok(g.manReady&&g.deepReady);updateGojoFusion(g,.02,g.p);assert.equal(e.hp,960);assert.equal(g.p.hp,5);
 });
-test('leaving the blast, dashing, shields and solid cover protect the owner; warning and hit radius agree',()=>{
- for(const guard of ['outside','dash','shield','wall']){const g=game();g.update(.02,{dash:true,mx:1});until(g,'fusion');const p=g.gojo.purple;g.p.x=p.x+50;g.p.y=p.y;g.p.inv=0;
+test('leaving the blast, dashing and shields protect the owner; warning and hit radius agree',()=>{
+ for(const guard of ['outside','dash','shield']){const g=game();g.update(.02,{dash:true,mx:1});until(g,'fusion');const p=g.gojo.purple;g.p.x=p.x+50;g.p.y=p.y;g.p.inv=0;
   if(guard==='outside')g.p.x=p.x+GOJO.radius+g.p.r+1;
   if(guard==='dash')g.p.dash=.2;
   if(guard==='shield')g.p.shield=true;
-  if(guard==='wall')g.room.obstacles=[{kind:'pillar',x:p.x+25,y:p.y,w:12,h:100,r:6}];
   updateGojoFusion(g,.86,g.p);assert.equal(g.p.hp,6,guard);if(guard==='shield')assert.equal(g.p.shield,false);
  }
+});
+
+test('Purple hits the full warning circle through cover, including its owner, without hitting beyond it',()=>{
+ const g=game();g.update(.02,{dash:true,mx:1});until(g,'fusion');const p=g.gojo.purple;
+ const enemies=[40,GOJO.radius+22,GOJO.radius+24].map(dx=>{const e=g.spawn('brute',p.x+dx,p.y);e.r=23;e.hp=1000;return e});g.room.enemies=enemies;
+ g.p.x=p.x+50;g.p.y=p.y;g.p.inv=0;g.room.obstacles=[{kind:'pillar',x:p.x+20,y:p.y,w:12,h:100,r:6}];
+ const radii=[],ctx=new Proxy({globalAlpha:1},{get:(o,k)=>k in o?o[k]:(...args)=>{if(k==='arc')radii.push(args[2])},set:(o,k,v)=>(o[k]=v,true)});
+ drawGojo(ctx,g);assert.ok(radii.includes(GOJO.radius),'warning uses the gameplay radius');
+ updateGojoFusion(g,.86,g.p);assert.deepEqual(enemies.map(e=>e.hp),[960,960,1000]);assert.equal(g.p.hp,5);
+ assert.equal(g.effects.find(e=>e.type==='gojoBlast').radius,GOJO.radius,'blast uses the same radius');
+ updateGojoFusion(g,.02,g.p);assert.deepEqual(enemies.map(e=>e.hp),[960,960,1000]);assert.equal(g.p.hp,5);
+});
+
+test('Purple breaks destructible cover, triggers barrels and devices, and saves the destroyed terrain',()=>{
+ const g=game();g.update(.02,{dash:true,mx:1});until(g,'fusion');const p=g.gojo.purple;
+ const obstacle=(kind,dx,dy,extra={})=>({kind,x:p.x+dx,y:p.y+dy,w:24,h:24,r:12,hp:3,...extra});
+ const crate=obstacle('crate',40,0),rock=obstacle('rock',0,40),pillar=obstacle('pillar',-40,0),pit=obstacle('pit',0,-40),outside=obstacle('crate',GOJO.radius+50,0),barrel=obstacle('barrel',40,40),device=obstacle('assembler',-40,40,{device:true,hp:6});
+ g.room.obstacles=[crate,rock,pillar,pit,outside,barrel,device];g.p.x=100;g.p.y=100;
+ updateGojoFusion(g,.8,g.p);assert.equal(g.room.obstacles.length,7,'no terrain damage during the warning');
+ updateGojoFusion(g,.06,g.p);assert.deepEqual(g.room.obstacles,[pillar,pit,outside,barrel]);assert.equal(barrel.fuse,.85,'chain reaction has its own warning');
+ assert.ok(g.events.some(e=>e.type==='room'),'terrain mutation requests an immediate save');
+ const resumed=deserializeRun(serializeRun(g)).game;assert.deepEqual(resumed.room.obstacles.map(o=>o.kind),['pillar','pit','crate','barrel']);
 });
 test('Red and Blue each deal one hit per enemy, and do not displace bosses',()=>{
  const g=game();g.p.dash=.2;updateGojoFusion(g,0,g.p);g.p.dash=0;updateGojoFusion(g,0,g.p);updateGojoFusion(g,.21,g.p);const s=g.gojo,e=g.makeBoss('puppet',s.red.x,s.red.y);e.hp=1000;g.room.enemies=[e];
  updateGojoFusion(g,0,g.p);assert.equal(e.hp,994);updateGojoFusion(g,0,g.p);assert.equal(e.hp,994);assert.equal(e.vx,0);
  s.phase='blueFlight';s.blue={x:e.x,y:e.y,hits:new Set()};s.red.x=e.x+100;s.red.y=e.y;updateGojoFusion(g,0,g.p);assert.equal(e.hp,990);updateGojoFusion(g,0,g.p);assert.equal(e.hp,990);assert.equal(e.vx,0);
+});
+
+test('stationary Red damages new contacts while waiting and while Blue approaches, once per enemy',()=>{
+ const g=game();g.update(.02,{dash:true,mx:1});until(g,'redHold');const s=g.gojo,r=s.red;
+ const waiting=g.makeBoss('puppet',r.x,r.y);waiting.hp=1000;g.room.enemies=[waiting];
+ updateGojoFusion(g,.02,g.p);assert.equal(waiting.hp,994,'contact during redHold');
+ updateGojoFusion(g,.02,g.p);assert.equal(waiting.hp,994,'one hit while stationary');assert.equal(waiting.vx,0);
+ until(g,'blueFlight');const approaching=g.makeBoss('puppet',r.x,r.y);approaching.hp=1000;g.room.enemies.push(approaching);
+ updateGojoFusion(g,.02,g.p);assert.equal(approaching.hp,994,'contact while Blue is still on its way');assert.equal(waiting.hp,994,'hit history survives the phase change');
+ updateGojoFusion(g,.02,g.p);assert.equal(approaching.hp,994,'one hit while Blue approaches');
+});
+
+test('stationary Red still respects cover and airborne enemies',()=>{
+ const g=game();g.update(.02,{dash:true,mx:1});until(g,'redHold');const r=g.gojo.red;
+ const covered=g.makeBoss('puppet',r.x+30,r.y),airborne=g.spawn('hopper',r.x,r.y);covered.hp=airborne.hp=1000;airborne.airborne=true;g.room.enemies=[covered,airborne];
+ g.room.obstacles=[{kind:'pillar',x:r.x+15,y:r.y,w:2,h:80,r:1}];
+ updateGojoFusion(g,.02,g.p);assert.equal(covered.hp,1000);assert.equal(airborne.hp,1000);
+ g.room.obstacles=[];airborne.airborne=false;
+ updateGojoFusion(g,.02,g.p);assert.equal(covered.hp,994);assert.equal(airborne.hp,994);
 });
 test('red stops at walls; blue can reach it but cannot hit through cover; room transitions cancel every phase',()=>{
  const g=game();g.update(.02,{dash:true,mx:1});until(g,'redFlight');const r=g.gojo.red;g.room.obstacles=[{kind:'pillar',x:r.x+30,y:r.y,w:12,h:110,r:6}];until(g,'redHold');assert.ok(g.gojo.red.x<g.room.obstacles[0].x);until(g,'fusion');g.enter(g.rooms.find(r=>r.exists&&r.type==='fight'&&r.id!==g.roomId).id,'top');assert.equal(g.gojo,null);g.p.dashCD=0;g.update(.02,{dash:true,mx:1});assert.equal(g.gojo,null,'cooldown persists across rooms');

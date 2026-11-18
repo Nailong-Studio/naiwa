@@ -1,5 +1,7 @@
 import {BOMB_DAMAGE,itemCombatActive} from './combat-values.js';
-import {shotLaneOpen,moveOnTerrain} from './terrain.js';
+import {shotLaneOpen,moveOnTerrain,blastTerrain} from './terrain.js';
+import {blastDevices} from './chapter-mechanics.js';
+import {blastResourceDoors} from './resource-scenes.js';
 
 export const GOJO={cooldown:8,redDamage:6,blueDamage:4,purpleDamage:BOMB_DAMAGE*2,radius:130,warning:.85,redRange:210};
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -19,9 +21,14 @@ function touchOrb(g,orb,kind,dt){
 function detonate(g,s){
  const p=s.purple;
  g.effects.push({type:'gojoBlast',x:p.x,y:p.y,radius:GOJO.radius,life:.55,max:.55});
- for(const e of [...g.room.enemies])if(!e.dead&&!e.airborne&&distance(e,p)<=GOJO.radius+e.r&&shotLaneOpen(g.room,p,e))g.damageEnemy(e,GOJO.purpleDamage,false);
- if(distance(g.p,p)<=GOJO.radius+g.p.r&&shotLaneOpen(g.room,p,g.p))g.hurt();
+ // Purple fills the warning circle. Cover must not silently cut holes into
+ // its area, and the blast uses the same environmental reactions as a bomb.
+ for(const e of [...g.room.enemies])if(!e.dead&&!e.airborne&&distance(e,p)<=GOJO.radius+e.r)g.damageEnemy(e,GOJO.purpleDamage,false);
+ blastResourceDoors(g,p.x,p.y,GOJO.radius);blastDevices(g,p.x,p.y,GOJO.radius);blastTerrain(g,p.x,p.y,GOJO.radius);
+ g.effects=g.effects.filter(f=>f.type!=='milkPool'||distance(f,p)>GOJO.radius+f.radius);
+ if(distance(g.p,p)<=GOJO.radius+g.p.r)g.hurt();
  g.emit('gojoBlast');s.phase='spent';s.left=.35;s.purple=null;
+ g.emit('room');
 }
 export function updateGojoFusion(g,dt,origin){
  const dash=g.p.dash>0,started=dash&&!g.chronoDash,landed=!dash&&g.chronoDash,clock=g.actionClock||0;g.chronoDash=dash;
@@ -41,10 +48,12 @@ export function updateGojoFusion(g,dt,origin){
   const angle=g.random()*Math.PI*2;
   s.red={x:s.feet.x,y:s.feet.y-10,dx:Math.cos(angle),dy:Math.sin(angle),travel:0,hits:new Set()};s.phase='redFlight';s.t=0;
  }
+ if(s.phase==='redHold'||s.phase==='blueFlight')touchOrb(g,s.red,'red',dt);
  if(s.phase==='redFlight'){
   const r=s.red,step=Math.min(330*dt,GOJO.redRange-r.travel),next={x:r.x+r.dx*step,y:r.y+r.dy*step};
   const blocked=next.x<62||next.x>898||next.y<62||next.y>538||!shotLaneOpen(g.room,r,next);
-  if(!blocked){r.x=next.x;r.y=next.y;r.travel+=step;touchOrb(g,r,'red',dt)}
+  if(!blocked){r.x=next.x;r.y=next.y;r.travel+=step}
+  touchOrb(g,r,'red',dt);
   if(blocked||r.travel>=GOJO.redRange-.01){s.phase='redHold';s.t=0}
  }else if(s.phase==='redHold'&&s.t>=.25){
   s.blue={x:s.x,y:s.y-14,hits:new Set()};s.phase='blueFlight';s.t=0;
