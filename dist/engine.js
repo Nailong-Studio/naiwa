@@ -1,4 +1,5 @@
 import {itemCombatActive} from './combat-values.js';
+import {FROG_JUMP_SECONDS,FROG_JUMP_SPEED,moveFrogOnTerrain} from './frog-jump.js';
 export const W=960,H=600;
 export const ITEMS=[
  {id:'eye',icon:'◉',name:'绿眼珠',desc:'泪滴染绿，附带持续蛙毒',short:'毒泪 · 持续伤害'},
@@ -31,7 +32,7 @@ export class Game{
  has(id){return this.items.includes(id)}
  start(){this.mode='play';this.emit('room');}
  spawn(type,x,y){let hp=type==='boss'?65+this.floor*25:type==='shooter'?3+this.floor:type==='slime'?2+this.floor:1+this.floor;return {type,x,y,r:type==='boss'?56:type==='slime'?23:19,hp,maxHp:hp,t:this.rand(0,6),cd:this.rand(.8,2),poison:0,poisonTick:0,hit:0,vx:0,vy:0,phase:0};}
- enter(id,side){if(!this.rooms[id])return;this.roomId=id;const r=this.room;r.visited=true;this.bullets=[];this.enemyBullets=[];this.effects=[];this.pickup=null;this.p.x=side==='left'?865:side==='right'?95:480;this.p.y=side==='top'?510:side==='bottom'?90:300;this.p.inv=1;if(!r.enemies){r.enemies=[];if(r.type==='boss'){r.enemies=[this.spawn('boss',480,225)];}else if(r.type==='fight'){const count=3+this.floor+Math.floor(this.rand(0,2));for(let i=0;i<count;i++){const x=190+(i%3)*285,y=170+Math.floor(i/3)*(this.gridSize===5?130:245);r.enemies.push(this.spawn(['slime','fly','shooter'][Math.floor(this.rand(0,3))],x,y));}}else if(r.type==='treasure'){r.clear=true;}}if(r.type==='boss'&&r.clear&&this.floor<(this.finalFloor||2))this.pickup={type:'portal',x:480,y:300};if(r.type==='treasure'&&!r.reward){r.reward=true;this.offer('荷叶下，藏着什么？');}this.emit('room');}
+ enter(id,side){if(!this.rooms[id])return;this.roomId=id;const r=this.room;r.visited=true;this.bullets=[];this.enemyBullets=[];this.effects=[];this.pickup=null;this.p.x=side==='left'?865:side==='right'?95:480;this.p.y=side==='top'?510:side==='bottom'?90:300;this.p.dash=0;delete this.p.frogJump;this.p.inv=1;if(!r.enemies){r.enemies=[];if(r.type==='boss'){r.enemies=[this.spawn('boss',480,225)];}else if(r.type==='fight'){const count=3+this.floor+Math.floor(this.rand(0,2));for(let i=0;i<count;i++){const x=190+(i%3)*285,y=170+Math.floor(i/3)*(this.gridSize===5?130:245);r.enemies.push(this.spawn(['slime','fly','shooter'][Math.floor(this.rand(0,3))],x,y));}}else if(r.type==='treasure'){r.clear=true;}}if(r.type==='boss'&&r.clear&&this.floor<(this.finalFloor||2))this.pickup={type:'portal',x:480,y:300};if(r.type==='treasure'&&!r.reward){r.reward=true;this.offer('荷叶下，藏着什么？');}this.emit('room');}
  doors(){const i=this.roomId;return {left:i%3>0,right:i%3<2,top:i>=3,bottom:i<6}}
  offer(title){const available=ITEMS.filter(i=>!this.has(i.id));for(let i=available.length-1;i>0;i--){const j=Math.floor(this.random()*(i+1));[available[i],available[j]]=[available[j],available[i]];}this.choices=available.slice(0,3);this.mode='choice';this.emit('choice',{title,choices:this.choices});}
  choose(id){if(this.mode!=='choice'||!this.choices.some(i=>i.id===id))return false;this.items.push(id);const p=this.p;applyItemStats(p,id);if(id==='milk')p.hp=Math.min(p.maxHp,p.hp+3);if(id==='lotus'){p.shield=true;p.shieldCD=12}this.mode='play';this.emit('item',{id});return true;}
@@ -39,7 +40,26 @@ export class Game{
  damageEnemy(e,n){if(e.dead||e.airborne)return;e.hp-=n;e.hit=.1;if(e.hp<=0&&!e.dead){e.dead=true;this.kills++;this.burst(e.x,e.y,e.type==='boss'?'#f4d96f':'#b9d28a',e.type==='boss'?45:14);this.emit('kill');this.onEnemyKilled?.(e);}}
  hurt(){const p=this.p;if(p.inv>0||p.dash>0)return;if(p.shield){p.shield=false;p.shieldCD=12;p.inv=.6;this.burst(p.x,p.y,'#bad37e');this.emit('shield');return}p.hp--;p.inv=1.25;this.emit('hurt');this.burst(p.x,p.y,'#f0a18a',8);if(p.hp<=0){this.mode='dead';this.emit('end',{win:false})}}
  shoot(dx,dy,pet=false){const p=this.p,len=Math.hypot(dx,dy);if(len<.01)return;dx/=len;dy/=len;const x=pet?p.x-35:p.x,y=pet?p.y+25:p.y-6;for(const off of (!pet&&this.has('double')?[-11,11]:[0])){this.bullets.push({x:x-dy*off+dx*20,y:y+dx*off+dy*20,vx:dx*490,vy:dy*490,r:pet?5:this.has('belly')?10:7,life:this.has('tongue')?2.7:1.6,damage:pet?.65:p.damage*(this.has('double')?.7:1),poison:!pet&&this.has('eye'),pierce:!pet&&this.has('tongue'),bounce:this.has('bubble')?2:0,hits:new Set(),pet});}if(!pet)this.emit('shoot');}
- update(dt,input={},playerDt=dt){dt=Math.min(dt,.04);playerDt=Math.min(playerDt,.04);if(this.mode!=='play')return;this.elapsed+=dt;const p=this.p,r=this.room;p.inv=Math.max(0,p.inv-playerDt);p.shot-=playerDt;p.dashCD=Math.max(0,p.dashCD-playerDt);const wasDashing=p.dash>0;p.dash=Math.max(0,p.dash-playerDt);if(wasDashing&&p.dash<=0)p.inv=Math.max(p.inv,.12);let mx=input.mx||0,my=input.my||0,mag=Math.hypot(mx,my);if(mag>1){mx/=mag;my/=mag}if(mx)p.face=mx<0?-1:1;if(input.dash&&p.dashCD<=0){p.dash=.23;p.dashCD=this.has('feet')?1.3:2;p.dx=mx||(!my?p.face:0);p.dy=my;this.emit('dash')}const previousX=p.x,previousY=p.y,scale=this.moveScale?.(p)??1,drift=this.groundDrift?.(p)||{x:0,y:0};p.x+=((p.dash>0?p.dx*730:mx*p.speed*scale)+drift.x)*playerDt;p.y+=((p.dash>0?p.dy*730:my*p.speed*scale)+drift.y)*playerDt;p.x=clamp(p.x,49,911);p.y=clamp(p.y,49,551);if(this.resolveTerrain)this.resolveTerrain(p,previousX,previousY);else for(const o of r.obstacles){const dx=p.x-o.x,dy=p.y-o.y,l=Math.hypot(dx,dy),min=o.r+p.r-4;if(l<min){p.x=o.x+dx/(l||1)*min;p.y=o.y+dy/(l||1)*min}}
+ update(dt,input={},playerDt=dt){
+ dt=Math.min(dt,.04);playerDt=Math.min(playerDt,.04);if(this.mode!=='play')return;
+ this.elapsed+=dt;const p=this.p,r=this.room;
+ p.inv=Math.max(0,p.inv-playerDt);p.shot-=playerDt;p.dashCD=Math.max(0,p.dashCD-playerDt);
+ let mx=input.mx||0,my=input.my||0,mag=Math.hypot(mx,my);if(mag>1){mx/=mag;my/=mag}if(mx)p.face=mx<0?-1:1;
+ if(input.dash&&p.dashCD<=0&&p.dash<=0){
+  p.dash=FROG_JUMP_SECONDS;p.dashCD=this.has('feet')?1.3:2;
+  p.dx=mx||(!my?p.face:0);p.dy=my;delete p.frogJump;this.emit('dash');
+ }
+ const previousX=p.x,previousY=p.y,dashing=p.dash>0,jumpDt=Math.min(p.dash,playerDt);
+ const scale=this.moveScale?.(p)??1,drift=dashing?{x:0,y:0}:(this.groundDrift?.(p)||{x:0,y:0});
+ p.x+=dashing?p.dx*FROG_JUMP_SPEED*jumpDt:(mx*p.speed*scale+drift.x)*playerDt;
+ p.y+=dashing?p.dy*FROG_JUMP_SPEED*jumpDt:(my*p.speed*scale+drift.y)*playerDt;
+ p.x=clamp(p.x,49,911);p.y=clamp(p.y,49,551);
+ const landing=dashing&&p.dash<=playerDt;
+ if(this.resolveTerrain)this.resolveTerrain(p,previousX,previousY,landing);
+ else if(dashing)moveFrogOnTerrain(r,p,previousX,previousY,landing);
+ else for(const o of r.obstacles){const dx=p.x-o.x,dy=p.y-o.y,l=Math.hypot(dx,dy),min=o.r+p.r-4;if(l<min){p.x=o.x+dx/(l||1)*min;p.y=o.y+dy/(l||1)*min}}
+ p.dash=Math.max(0,p.dash-playerDt);if(landing)p.inv=Math.max(p.inv,.12);
+
  if(input.fire&&p.shot<=0){let ax=input.ax||0,ay=input.ay||0;if(input.auto){const e=r.enemies.filter(e=>!e.dead).sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];ax=e?e.x-p.x:p.face;ay=e?e.y-p.y:0;}this.shoot(ax,ay);p.shot=this.attackInterval?.()??p.rate;}
  if(this.has('lotus')&&!p.shield&&itemCombatActive(r)){p.shieldCD-=dt;if(p.shieldCD<=0)p.shield=true}if(this.has('laugh')&&itemCombatActive(r)){p.laugh-=dt;if(p.laugh<=0){p.laugh=4;this.effects.push({type:'laugh',x:p.x,y:p.y,life:.6,max:.6});for(const e of r.enemies){if(!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<190){this.damageEnemy(e,3);const len=Math.hypot(e.x-p.x,e.y-p.y)||1;e.vx=(e.x-p.x)/len*260;e.vy=(e.y-p.y)/len*260}}this.emit('laugh')}}if(this.has('tadpole')){p.petCD-=dt;if(p.petCD<=0){const e=r.enemies.find(e=>!e.dead);if(e){this.shoot(e.x-(p.x-35),e.y-(p.y+25),true);const shot=this.bullets.at(-1);if(shot)shot.damage=Math.min(2,.6+p.damage*.4);p.petCD=.48}}}
  for(const e of r.enemies){if(e.dead)continue;e.t+=dt;e.cd-=dt;e.hit=Math.max(0,e.hit-dt);if(e.poison>0){e.poison-=dt;e.poisonTick-=dt;if(e.poisonTick<=0){e.poisonTick=.5;this.damageEnemy(e,.45);}}const dx=p.x-e.x,dy=p.y-e.y,len=Math.hypot(dx,dy)||1;let speed=e.type==='fly'?115:e.type==='slime'?64:e.type==='boss'?42:25;if(e.type==='boss'&&e.hp<e.maxHp*.5)speed=65;speed=(this.enemySpeed?.(e)??speed)*(this.moveScale?.(e)??1);const oldX=e.x,oldY=e.y,heading=this.enemyHeading?.(e)||{x:dx/len,y:dy/len},drift=this.groundDrift?.(e)||{x:0,y:0};e.x+=(heading.x*speed+e.vx+drift.x)*dt;e.y+=(heading.y*speed+e.vy+drift.y)*dt;e.vx*=Math.exp(-dt*7);e.vy*=Math.exp(-dt*7);e.x=clamp(e.x,55+e.r,905-e.r);e.y=clamp(e.y,55+e.r,545-e.r);if(this.resolveTerrain)this.resolveTerrain(e,oldX,oldY);else for(const o of r.obstacles){const ox=e.x-o.x,oy=e.y-o.y,ol=Math.hypot(ox,oy),mr=o.r+e.r-3;if(ol<mr){e.x=o.x+ox/(ol||1)*mr;e.y=o.y+oy/(ol||1)*mr}}

@@ -29,9 +29,10 @@ test('encounter placements are reachable, separated and away from every entry po
   for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++)assert.ok(Math.hypot(enemies[i].x-enemies[j].x,enemies[i].y-enemies[j].y)>=60);
  }
 });
-test('pits stop walking and dash, permit flying monsters, and let projectiles cross',()=>{
+test('pits stop walking, permit frog jumps and flying monsters, and let projectiles cross',()=>{
  const g=new Game();g.start();g.p.x=200;g.p.y=300;g.room.obstacles=[{kind:'pit',x:260,y:300,w:48,h:48,r:24}];
- for(let i=0;i<7;i++)g.update(.04,{mx:1,dash:true});assert.ok(g.p.x<216);
+ for(let i=0;i<7;i++)g.update(.04,{mx:1});assert.ok(g.p.x<216);
+ g.update(.04,{mx:1,dash:true});for(let i=0;i<6;i++)g.update(.04,{});assert.ok(g.p.x>305);assert.equal(blocked(g.room,g.p.x,g.p.y,g.p.r),false);
  const fly={type:'hopper',x:330,y:300,r:19};moveOnTerrain(g.room,fly,200,300);assert.ok(Math.abs(fly.x-330)<.001);
  const bullet={x:260,y:300,r:9,damage:1};assert.equal(g.projectileBlocked(bullet,false),false);assert.equal(g.projectileBlocked(bullet,true),false);
 });

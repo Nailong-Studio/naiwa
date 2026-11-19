@@ -2,6 +2,7 @@ import {atlasRegion} from './atlas-regions.js';
 import {loadArt} from './asset-url.js';
 import {selectedCostume,costumeById,costumeImage} from './costumes.js';
 import {COSTUME_REGIONS} from './costume-regions.js';
+import {FROG_JUMP_SECONDS} from './frog-jump.js';
 const sheet=typeof Image==='undefined'?null:new Image();
 if(sheet)loadArt(sheet,'naiwa-pixel-v2.png');
 const tinted=new Map();
@@ -23,6 +24,7 @@ export function drawHero(c,g,x,y,size=1,ghost=false,style={}){
  const frame=style.frame??heroFrame(g),r=heroDrawRect(active,frame,file);
  c.save();c.translate(Math.round(x),Math.round(y));c.scale(size,size);
  if(!ghost){c.fillStyle='#25343c35';c.fillRect(-19,19,38,6)}
+ if(!ghost&&style.frame===undefined&&g.p.dash>0)c.translate(0,-Math.round(Math.sin(Math.PI*(1-Math.min(1,g.p.dash/FROG_JUMP_SECONDS)))*30));
  if((style.face??g.p.face)>0)c.scale(-1,1);
  c.imageSmoothingEnabled=false;
  if(style.tint){const key=file+frame+style.tint;let tile=tinted.get(key);if(!tile){if(tinted.size>=160)tinted.clear();tile=document.createElement('canvas');tile.width=tile.height=140;const tc=tile.getContext('2d');tc.imageSmoothingEnabled=false;tc.drawImage(active,r.left,r.top,r.w,r.h,r.dx+70,r.dy+90,r.dw,r.dh);tc.globalCompositeOperation='source-in';tc.fillStyle=style.tint;tc.fillRect(0,0,140,140);tinted.set(key,tile)}c.drawImage(tile,-70,-90,140,140)}

@@ -2,7 +2,7 @@
    thin brass ring, readable Chinese type, and the original character artwork. */
 .game-frame{border-radius:4px;border:3px solid #303b42;box-shadow:0 5px 0 #303b4228,0 18px 40px #263e3020}
 .hud{background:#293e3b;border-bottom:3px solid #52665a}.game-footer{background:#293e3b}
-#game,#rescueScene{image-rendering:pixelated}
+#game{image-rendering:auto}#rescueScene{image-rendering:pixelated}
 #rescueScene{aspect-ratio:32/13}.revive-body canvas{aspect-ratio:2/1}.wardrobe canvas{aspect-ratio:1}
 
 /* Hearts */
