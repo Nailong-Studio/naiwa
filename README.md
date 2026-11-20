@@ -10,6 +10,12 @@
 
 电脑用 WASD 移动、方向键射击。手机横屏，左手移动，右手用十字键选射击方向。中途退出后，可以在同一设备的同一浏览器或安卓应用里点「继续游戏」接着玩。[完整操作与本地运行](#运行与操作)
 
+## 给五个奶蛙项目点 Star
+
+如果这款奶蛙游戏让你笑了一下，去 GitHub 给五个项目各点一颗 Star：[素材仓库](https://github.com/Nailong-Studio/NaiWa-Wallpaper)、[艺术圣殿](https://github.com/Nailong-Studio/NaiLoong-Universe)、[新标签页扩展](https://github.com/Nailong-Studio/NaiWa-NewTab)、[像素游戏](https://github.com/Nailong-Studio/naiwa)、[像素表情技能](https://github.com/Nailong-Studio/naiwa-pixel-stickers)。
+
+Star 是公开的收藏，不用打赏，也不用注册新账号。
+
 ## 开源许可
 
 kol-mm 和贡献者对其有权授权的原创游戏程序采用 GNU 通用公共许可证第 3 版（`GPL-3.0-only`），涵盖网页游戏代码、安卓外壳、构建脚本及自动化测试。你可以运行、修改和商业分发这些程序。向他人分发修改版时，应保留适用的版权和许可证声明，让接收者能够依 GPLv3 取得对应源码。完整条款见 [LICENSE](LICENSE)。
